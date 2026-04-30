@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Create Event - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+        <div class="card-header bg-gradient text-white p-4 rounded-top-4" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <h3 class="font-weight-bold mb-0">🎯 Create New Event</h3>
+        </div>
+
+        <div class="card-body p-5">
+          <form method="POST" enctype="multipart/form-data">
+            <!-- Event Title -->
+            <div class="form-group mb-4">
+              <label for="title" class="font-weight-bold text-dark mb-2">Event Title</label>
+              <input 
+                type="text" 
+                class="form-control rounded-3 border-2" 
+                id="title" 
+                name="title" 
+                placeholder="e.g., Speech Therapy Workshop" 
+                required
+                style="border-color: #667eea; padding: 0.75rem;"
+              >
+              <small class="text-muted d-block mt-2">Make it descriptive and engaging</small>
+            </div>
+
+            <!-- Event Description -->
+            <div class="form-group mb-4">
+              <label for="description" class="font-weight-bold text-dark mb-2">Description</label>
+              <textarea 
+                class="form-control rounded-3 border-2" 
+                id="description" 
+                name="description" 
+                placeholder="Provide details about the event, agenda, and what participants will learn..." 
+                rows="5"
+                required
+                style="border-color: #667eea; padding: 0.75rem;"
+              ></textarea>
+              <small class="text-muted d-block mt-2">Include purpose, agenda, and key information</small>
+            </div>
+
+            <!-- Event Date & Time -->
+            <div class="form-group mb-4">
+              <label for="date" class="font-weight-bold text-dark mb-2">Date & Time</label>
+              <input 
+                type="datetime-local" 
+                class="form-control rounded-3 border-2" 
+                id="date" 
+                name="date" 
+                required
+                style="border-color: #667eea; padding: 0.75rem;"
+              >
+              <small class="text-muted d-block mt-2">When should this event take place?</small>
+            </div>
+
+            <!-- Event Location -->
+            <div class="form-group mb-4">
+              <label for="location" class="font-weight-bold text-dark mb-2">Location</label>
+              <input 
+                type="text" 
+                class="form-control rounded-3 border-2" 
+                id="location" 
+                name="location" 
+                placeholder="e.g., Nairobi Community Center, Westlands" 
+                required
+                style="border-color: #667eea; padding: 0.75rem;"
+              >
+              <small class="text-muted d-block mt-2">Include venue name and area for easy navigation</small>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-3 mt-5">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg rounded-3 flex-grow-1" 
+                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none;"
+              >
+                ✅ Create Event
+              </button>
+              <a 
+                href="{{ url_for('main.events') }}" 
+                class="btn btn-outline-secondary btn-lg rounded-3 flex-grow-1"
+              >
+                ❌ Cancel
+              </a>
+            </div>
+          </form>
+
+          <!-- Info Section -->
+          <div class="alert alert-info rounded-3 mt-5 border-left-4" style="border-left: 4px solid #4facfe;">
+            <h6 class="font-weight-bold mb-2">💡 Tips for Great Events:</h6>
+            <ul class="mb-0">
+              <li class="mb-1">Include a clear agenda and learning objectives</li>
+              <li class="mb-1">Specify the target audience (parents, caregivers, professionals)</li>
+              <li class="mb-1">Mention if RSVP or registration is required</li>
+              <li class="mb-1">Include contact person for queries</li>
+              <li class="mb-1">Add accessibility information (parking, wheelchairs, etc.)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-control:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+
+  .border-left-4 {
+    border-left: 4px solid #4facfe;
+  }
+</style>
+{% endblock %}

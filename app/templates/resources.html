@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Resource Library - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center mb-5 animate__animated animate__fadeInDown">
+    <div class="col-lg-10 text-center">
+      <h1 class="display-4 font-weight-bold text-dark mb-3">📚 Resource Library</h1>
+      <p class="lead text-muted">Your comprehensive guide to support services, programs, and advocacy for children with disabilities in Kenya</p>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KISE Info Section -->
+  <div class="row mb-5 animate__animated animate__fadeInUp">
+    <div class="col-lg-6 mb-4">
+      <div class="card border-0 shadow-lg rounded-4 h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); overflow: hidden;">
+        <div class="card-body text-white p-5">
+          <h3 class="card-title font-weight-bold mb-3">🎓 Kenya Institute of Special Education (KISE)</h3>
+          <p class="card-text mb-4">KISE is the leading institution for special education in Kenya, providing training, research, and advocacy for inclusive education.</p>
+          
+          <div class="resource-details mb-4">
+            <h6 class="font-weight-bold mb-2">Key Services:</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">✓ Teacher training in special education</li>
+              <li class="mb-2">✓ Curriculum development for inclusive learning</li>
+              <li class="mb-2">✓ Counseling and support services</li>
+              <li class="mb-2">✓ Resource center for learning materials</li>
+              <li class="mb-2">✓ Research on disability and education</li>
+            </ul>
+          </div>
+
+          <div class="resource-contact">
+            <h6 class="font-weight-bold mb-2">Contact Information:</h6>
+            <p class="mb-1"><strong>Email:</strong> info@kise.ac.ke</p>
+            <p class="mb-1"><strong>Phone:</strong> +254 20 3566000</p>
+            <p class="mb-0"><strong>Website:</strong> <a href="http://www.kise.ac.ke" target="_blank" class="text-white">www.kise.ac.ke</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Government Support Programs -->
+    <div class="col-lg-6 mb-4">
+      <div class="card border-0 shadow-lg rounded-4 h-100">
+        <div class="card-header bg-gradient text-white p-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h3 class="card-title font-weight-bold mb-0">🏛️ Government Support Programs</h3>
+        </div>
+        <div class="card-body p-5">
+          <div class="program-item mb-4">
+            <h6 class="font-weight-bold text-dark mb-2">📋 NCPWD Registration</h6>
+            <p class="text-muted mb-2">National Council for Persons with Disabilities registration ensures your child has official documentation for disability benefits and support services.</p>
+            <small class="text-success">✓ Access to special needs education allowances</small>
+          </div>
+
+          <hr>
+
+          <div class="program-item mb-4">
+            <h6 class="font-weight-bold text-dark mb-2">👨‍👩‍👧‍👦 Inua Jamii Programme</h6>
+            <p class="text-muted mb-2">Social protection program providing cash transfers to vulnerable households, including those with members with severe disabilities.</p>
+            <small class="text-success">✓ Monthly stipend support for qualifying families</small>
+          </div>
+
+          <hr>
+
+          <div class="program-item">
+            <h6 class="font-weight-bold text-dark mb-2">🏥 NHIF Coverage</h6>
+            <p class="text-muted mb-2">National Health Insurance Fund covers medical services including rehabilitation, therapies, and hospital visits.</p>
+            <small class="text-success">✓ Healthcare coverage for registered members</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Services Section -->
+  <div class="row mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+    <div class="col-lg-12">
+      <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-header bg-gradient text-white p-4" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <h3 class="card-title font-weight-bold mb-0">🏠 Local Services & Providers</h3>
+        </div>
+        <div class="card-body p-5">
+          <div class="row">
+            <!-- NGOs -->
+            <div class="col-lg-4 mb-4">
+              <div class="service-card p-4 rounded-3 border-left-4" style="border-left: 4px solid #667eea; background: #f8f9ff;">
+                <h5 class="font-weight-bold text-dark mb-3">🤝 Registered NGOs</h5>
+                <p class="text-muted mb-3">Organizations providing support, training, and advocacy for children with disabilities:</p>
+                <ul class="list-unstyled text-sm">
+                  <li class="mb-2">• Disability Rights International Kenya</li>
+                  <li class="mb-2">• Down Syndrome Society Kenya</li>
+                  <li class="mb-2">• Autism Society of Kenya</li>
+                  <li class="mb-2">• Cerebral Palsy Organization Kenya</li>
+                  <li class="mb-2">• National Autism Society of Kenya</li>
+                </ul>
+                <a href="#" class="btn btn-sm btn-primary rounded-3 mt-3">Find More NGOs →</a>
+              </div>
+            </div>
+
+            <!-- Therapy Centers -->
+            <div class="col-lg-4 mb-4">
+              <div class="service-card p-4 rounded-3 border-left-4" style="border-left: 4px solid #764ba2; background: #fff8ff;">
+                <h5 class="font-weight-bold text-dark mb-3">🏥 Therapy Centers</h5>
+                <p class="text-muted mb-3">Professional therapy services including speech, occupational, and physical therapy:</p>
+                <ul class="list-unstyled text-sm">
+                  <li class="mb-2">• Speech & Language Therapy</li>
+                  <li class="mb-2">• Occupational Therapy</li>
+                  <li class="mb-2">• Physical Rehabilitation</li>
+                  <li class="mb-2">• Behavioral Therapy</li>
+                  <li class="mb-2">• Psychosocial Support</li>
+                </ul>
+                <a href="#" class="btn btn-sm btn-primary rounded-3 mt-3">Find Therapy Centers →</a>
+              </div>
+            </div>
+
+            <!-- Special Schools -->
+            <div class="col-lg-4 mb-4">
+              <div class="service-card p-4 rounded-3 border-left-4" style="border-left: 4px solid #f5576c; background: #fff5f8;">
+                <h5 class="font-weight-bold text-dark mb-3">🏫 Special Schools</h5>
+                <p class="text-muted mb-3">Educational institutions specialized in inclusive and special needs education:</p>
+                <ul class="list-unstyled text-sm">
+                  <li class="mb-2">• Visual Impairment Schools</li>
+                  <li class="mb-2">• Hearing Impairment Schools</li>
+                  <li class="mb-2">• Intellectual Disability Schools</li>
+                  <li class="mb-2">• Mainstream Inclusive Schools</li>
+                  <li class="mb-2">• Resource Centers</li>
+                </ul>
+                <a href="#" class="btn btn-sm btn-primary rounded-3 mt-3">Find Schools →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rights & Advocacy Section -->
+  <div class="row animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+    <div class="col-lg-12">
+      <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-header bg-gradient text-white p-4" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <h3 class="card-title font-weight-bold mb-0">⚖️ Rights & Advocacy</h3>
+        </div>
+        <div class="card-body p-5">
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <div class="advocacy-item mb-4">
+                <h6 class="font-weight-bold text-dark mb-2">📜 Your Child's Rights</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2">✓ Right to free quality education</li>
+                  <li class="mb-2">✓ Right to health services and therapy</li>
+                  <li class="mb-2">✓ Right to social protection benefits</li>
+                  <li class="mb-2">✓ Right to accessibility in public spaces</li>
+                  <li class="mb-2">✓ Right to participation and inclusion</li>
+                  <li class="mb-2">✓ Right to protection from discrimination</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+              <div class="advocacy-item mb-4">
+                <h6 class="font-weight-bold text-dark mb-2">🛡️ How to Advocate</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2">• Contact disability advocacy organizations</li>
+                  <li class="mb-2">• Engage with school management</li>
+                  <li class="mb-2">• Access NCPWD for formal complaints</li>
+                  <li class="mb-2">• Document discrimination incidents</li>
+                  <li class="mb-2">• Connect with other parents for support</li>
+                  <li class="mb-2">• Participate in community awareness programs</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-lg-6">
+              <div class="alert alert-warning rounded-3 border-left-4" style="border-left: 4px solid #ff6b6b;">
+                <h6 class="font-weight-bold mb-2">📞 Emergency Contacts</h6>
+                <p class="mb-1"><small><strong>NCPWD Hotline:</strong> 0800 333 222</small></p>
+                <p class="mb-1"><small><strong>Child Helpline:</strong> 116</small></p>
+                <p class="mb-0"><small><strong>Education Complaints:</strong> Ministry of Education</small></p>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="alert alert-info rounded-3 border-left-4" style="border-left: 4px solid #4facfe;">
+                <h6 class="font-weight-bold mb-2">💡 Helpful Resources</h6>
+                <p class="mb-1"><small><a href="#" class="text-primary">Download: Parent's Rights Handbook</a></small></p>
+                <p class="mb-1"><small><a href="#" class="text-primary">View: Education Act 2019 Inclusive Education Section</a></small></p>
+                <p class="mb-0"><small><a href="#" class="text-primary">Access: Disability Benefits Calculator</a></small></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="row mt-5 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+    <div class="col-lg-10 mx-auto">
+      <div class="card border-0 rounded-4 p-5 text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h3 class="font-weight-bold mb-3">Need Help Finding Resources?</h3>
+        <p class="lead mb-4">Our support groups can help you navigate available services and connect with other parents who have experience with these resources.</p>
+        <a href="{{ url_for('main.forums') }}" class="btn btn-light btn-lg rounded-3 px-5">
+          Join Our Forums →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .service-card {
+    transition: all 0.3s ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .advocacy-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+
+  .bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+</style>
+{% endblock %}

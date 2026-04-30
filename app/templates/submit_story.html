@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Share Your Story - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeInUp">
+        <div class="card-header bg-gradient text-white p-4 rounded-top-4" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <h3 class="font-weight-bold mb-0">✍️ Share Your Story</h3>
+          <small class="text-white-50 d-block mt-2">Help inspire and support other parents in our community</small>
+        </div>
+
+        <div class="card-body p-5">
+          <form method="POST">
+            <!-- Story Title -->
+            <div class="form-group mb-4">
+              <label for="title" class="font-weight-bold text-dark mb-2">Story Title</label>
+              <input 
+                type="text" 
+                class="form-control rounded-3 border-2" 
+                id="title" 
+                name="title" 
+                placeholder="e.g., How Speech Therapy Changed My Daughter's Life" 
+                required
+                style="border-color: #667eea; padding: 0.75rem;"
+              >
+              <small class="text-muted d-block mt-2">A short, engaging title that captures your story</small>
+            </div>
+
+            <!-- Story Content -->
+            <div class="form-group mb-4">
+              <label for="content" class="font-weight-bold text-dark mb-2">Your Story</label>
+              <textarea 
+                class="form-control rounded-3 border-2" 
+                id="content" 
+                name="content" 
+                placeholder="Share your journey, challenges you overcame, victories you celebrated, and lessons learned..." 
+                rows="8"
+                required
+                style="border-color: #667eea; padding: 0.75rem;"
+              ></textarea>
+              <small class="text-muted d-block mt-2">Be as detailed as you'd like. The more authentic, the more inspiring!</small>
+              <small class="text-muted d-block">Character count: <span id="char-count">0</span>/2000</small>
+            </div>
+
+            <!-- Anonymous Checkbox -->
+            <div class="form-group mb-5">
+              <div class="custom-control custom-checkbox">
+                <input 
+                  type="checkbox" 
+                  class="custom-control-input" 
+                  id="anonymous" 
+                  name="anonymous"
+                >
+                <label class="custom-control-label font-weight-bold text-dark" for="anonymous">
+                  Share this story anonymously
+                </label>
+              </div>
+              <small class="text-muted d-block mt-2">Your name will not be displayed if you check this box</small>
+            </div>
+
+            <!-- Guidelines Alert -->
+            <div class="alert alert-info rounded-3 border-left-4 mb-5" style="border-left: 4px solid #4facfe;">
+              <h6 class="font-weight-bold mb-3">📋 Story Guidelines</h6>
+              <ul class="mb-0">
+                <li class="mb-2">✓ Be authentic and share real experiences</li>
+                <li class="mb-2">✓ Include specific details and examples</li>
+                <li class="mb-2">✓ Share both challenges and victories</li>
+                <li class="mb-2">✓ Be respectful and supportive in tone</li>
+                <li class="mb-2">✗ Avoid sharing other people's private information without consent</li>
+                <li class="mb-2">✗ Do not use offensive or discriminatory language</li>
+                <li class="mb-0">✗ Do not promote unproven medical treatments</li>
+              </ul>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-3">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg rounded-3 flex-grow-1" 
+                style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border: none; color: white; font-weight: bold;"
+              >
+                📤 Submit Story
+              </button>
+              <a 
+                href="{{ url_for('main.stories') }}" 
+                class="btn btn-outline-secondary btn-lg rounded-3 flex-grow-1"
+              >
+                👈 Back to Stories
+              </a>
+            </div>
+
+            <!-- Info -->
+            <div class="alert alert-success rounded-3 mt-4 border-left-4" style="border-left: 4px solid #56ab2f;">
+              <h6 class="font-weight-bold mb-2">✨ What Happens Next?</h6>
+              <p class="mb-2">Your story will be reviewed by our admin team to ensure it meets our community guidelines. This usually takes 24-48 hours.</p>
+              <p class="mb-0">Once approved, it will appear on our Stories page and inspire thousands of other parents!</p>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Story Examples -->
+      <div class="card border-0 shadow-lg rounded-4 mt-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        <div class="card-header bg-light p-4 rounded-top-4">
+          <h5 class="font-weight-bold mb-0">💡 Story Examples</h5>
+        </div>
+        <div class="card-body p-5">
+          <div class="example-item mb-4">
+            <h6 class="font-weight-bold text-dark mb-2">🎓 Education Journey Example</h6>
+            <p class="text-muted mb-0">"When my son was diagnosed with autism, we thought his education was over. We tried different schools and found an inclusive one that understood his needs. With proper support and a dedicated teacher, he's now reading at his grade level..."</p>
+          </div>
+
+          <hr>
+
+          <div class="example-item mb-4">
+            <h6 class="font-weight-bold text-dark mb-2">💪 Personal Growth Example</h6>
+            <p class="text-muted mb-0">"As a parent, I struggled with accepting my daughter's cerebral palsy. Through therapy and support from other parents, I learned that disability doesn't define our children. Now, I see her for her abilities..."</p>
+          </div>
+
+          <hr>
+
+          <div class="example-item">
+            <h6 class="font-weight-bold text-dark mb-2">👨‍👩‍👧 Family Moment Example</h6>
+            <p class="text-muted mb-0">"The day my son said his first word after two years of speech therapy was magical. Our whole family celebrated this victory together, and it reminded us that every milestone, big or small, is worth celebrating..."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-control:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+
+  .custom-control-label {
+    padding-top: 0.25rem;
+  }
+
+  .border-left-4 {
+    border-left: 4px solid #4facfe;
+  }
+</style>
+
+<script>
+  // Character counter
+  const contentTextarea = document.getElementById('content');
+  const charCount = document.getElementById('char-count');
+  
+  contentTextarea.addEventListener('input', function() {
+    charCount.textContent = this.value.length;
+  });
+</script>
+{% endblock %}

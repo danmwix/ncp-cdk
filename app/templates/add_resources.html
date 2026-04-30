@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Add Resources - NCP-CDK Kenya{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold">📚 Add New Resource</h1>
+                    <p class="lead text-muted">Create helpful resources for parents and caregivers</p>
+                </div>
+                <a href="{{ url_for('admin.view_resources') }}" class="btn btn-outline-primary">View Resources →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <form method="POST" novalidate>
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">📖 Resource Title</label>
+                            <input type="text" class="form-control form-control-lg" id="title" name="title" placeholder="e.g., Early Intervention Guide for ASD" required>
+                            <small class="text-muted">Give your resource a clear, descriptive title</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">📝 Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" placeholder="Describe the resource, what it covers, and why it's helpful..." required></textarea>
+                            <small class="text-muted">Provide details about the resource content</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="resource_url" class="form-label fw-bold">🔗 Resource URL</label>
+                            <input type="url" class="form-control form-control-lg" id="resource_url" name="resource_url" placeholder="https://example.com/resource" required>
+                            <small class="text-muted">The link to the resource (must start with http:// or https://)</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="resource_type" class="form-label fw-bold">📂 Resource Type</label>
+                                <select class="form-select form-select-lg" id="resource_type" name="resource_type" required>
+                                    <option value="">-- Select a type --</option>
+                                    <option value="link">🔗 External Link</option>
+                                    <option value="pdf">📄 PDF Guide</option>
+                                    <option value="video">🎥 Video Tutorial</option>
+                                    <option value="guide">📚 Written Guide</option>
+                                    <option value="tool">🛠️ Tool/App</option>
+                                    <option value="organization">🏢 Organization</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label for="disability_id" class="form-label fw-bold">♿ Disability Category (Optional)</label>
+                                <select class="form-select form-select-lg" id="disability_id" name="disability_id">
+                                    <option value="">-- For All Disabilities --</option>
+                                    {% for disability in disabilities %}
+                                        <option value="{{ disability.id }}">{{ disability.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Leave blank to make it available to everyone</small>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                ✅ Add Resource
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">💡 Resource Types Guide</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <strong>🔗 External Link</strong><br>
+                            <small class="text-muted">Any webpage or online resource</small>
+                        </li>
+                        <li class="mb-3">
+                            <strong>📄 PDF Guide</strong><br>
+                            <small class="text-muted">Downloadable PDF documents</small>
+                        </li>
+                        <li class="mb-3">
+                            <strong>🎥 Video Tutorial</strong><br>
+                            <small class="text-muted">Educational videos on YouTube, Vimeo, etc.</small>
+                        </li>
+                        <li class="mb-3">
+                            <strong>📚 Written Guide</strong><br>
+                            <small class="text-muted">Blog posts, articles, comprehensive guides</small>
+                        </li>
+                        <li class="mb-3">
+                            <strong>🛠️ Tool/App</strong><br>
+                            <small class="text-muted">Software tools and mobile applications</small>
+                        </li>
+                        <li>
+                            <strong>🏢 Organization</strong><br>
+                            <small class="text-muted">NGOs, support groups, government services</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm bg-warning bg-opacity-10 mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-2">⚠️ Guidelines</h6>
+                    <ul class="small list-unstyled">
+                        <li>✓ Ensure the resource URL is active</li>
+                        <li>✓ Verify content accuracy</li>
+                        <li>✓ Use clear, descriptive titles</li>
+                        <li>✓ Specify disability categories when relevant</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Join NCP-CDK - Register{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeInUp">
+      <div class="card-body p-5" data-aos="zoom-in" data-aos-duration="800">
+        <h3 class="text-center mb-4 text-primary animate__animated animate__fadeInDown">
+          Join Our Support Community
+        </h3>
+        <p class="text-center text-muted mb-4 animate__animated animate__fadeIn">
+          Create your profile to connect with other Kenyan parents and caregivers
+        </p>
+        
+        <form method="POST" novalidate class="animate__animated animate__fadeInUp">
+          {{ form.hidden_tag() }}
+          
+          <!-- Parent Info -->
+          <div class="row g-3">
+            <div class="col-md-6" data-aos="fade-right">
+              {{ form.name.label(class="form-label fw-bold") }}
+              {{ form.name(class="form-control") }}
+              {% for error in form.name.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6" data-aos="fade-left">
+              {{ form.email.label(class="form-label fw-bold") }}
+              {{ form.email(class="form-control") }}
+              {% for error in form.email.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6" data-aos="fade-up">
+              {{ form.county.label(class="form-label fw-bold") }}
+              {{ form.county(class="form-select") }}
+              {% for error in form.county.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Children Info -->
+          <div class="mt-4" data-aos="fade-up" data-aos-delay="200">
+            <h5 class="text-secondary">Children Information</h5>
+            <small class="text-muted d-block mb-3">Enter details for each child</small>
+            
+            {% for child_form in form.children %}
+            <div class="border rounded p-3 mb-3 bg-light animate__animated animate__fadeInUp">
+              <div class="mb-3">
+                {{ child_form.form.name.label(class="form-label fw-bold") }}
+                {{ child_form.form.name(class="form-control") }}
+                {% for error in child_form.form.name.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                {{ child_form.form.age.label(class="form-label fw-bold") }}
+                {{ child_form.form.age(class="form-control") }}
+                {% for error in child_form.form.age.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                {{ child_form.form.disabilities.label(class="form-label fw-bold") }}
+                <div class="row g-2">
+                  {% for subfield in child_form.form.disabilities %}
+                  <div class="col-md-6">
+                    <div class="form-check form-switch p-2 border rounded bg-white">
+                      {{ subfield(class="form-check-input") }}
+                      {{ subfield.label(class="form-check-label fw-medium") }}
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% for error in child_form.form.disabilities.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Passwords -->
+          <div class="row g-3 mt-3">
+            <div class="col-md-6" data-aos="fade-right">
+              {{ form.password.label(class="form-label fw-bold") }}
+              {{ form.password(class="form-control") }}
+              {% for error in form.password.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6" data-aos="fade-left">
+              {{ form.password2.label(class="form-label fw-bold") }}
+              {{ form.password2(class="form-control") }}
+              {% for error in form.password2.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-3 mt-4 fw-bold animate__animated animate__pulse">
+            Create Account & Join the Community ❤️
+          </button>
+        </form>
+
+        <div class="text-center mt-4 animate__animated animate__fadeInUp">
+          <p>Already have an account? 
+            <a href="{{ url_for('auth.login') }}" class="text-primary">Login here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

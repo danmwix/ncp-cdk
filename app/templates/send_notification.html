@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Send Notification - NCP-CDK Kenya{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold">🔔 Send Notification</h1>
+                    <p class="lead text-muted">Send announcements and updates to users</p>
+                </div>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary">← Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <form method="POST" novalidate>
+                        <div class="mb-4">
+                            <label for="user_id" class="form-label fw-bold">👥 Send To</label>
+                            <select class="form-select form-select-lg" id="user_id" name="user_id" required>
+                                <option value="">-- Select recipient --</option>
+                                <option value="all"><strong>🌍 All Users</strong></option>
+                                <optgroup label="Individual Users">
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                            <small class="text-muted">Choose who should receive this notification</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">📌 Notification Title</label>
+                            <input type="text" class="form-control form-control-lg" id="title" name="title" placeholder="e.g., Important Update About New Feature" required>
+                            <small class="text-muted">Short, descriptive title for the notification</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="form-label fw-bold">💬 Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="6" placeholder="Write your notification message here..." required></textarea>
+                            <small class="text-muted">Keep it clear and concise. Supports markdown.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="notification_type" class="form-label fw-bold">📬 Notification Type</label>
+                            <select class="form-select form-select-lg" id="notification_type" name="notification_type" required>
+                                <option value="info">ℹ️ Info</option>
+                                <option value="success">✅ Success</option>
+                                <option value="warning">⚠️ Warning</option>
+                                <option value="error">❌ Error</option>
+                            </select>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="send_email" name="send_email">
+                            <label class="form-check-label" for="send_email">
+                                📧 Also send as email notification
+                            </label>
+                            <small class="d-block text-muted mt-1">Users will receive both in-app and email notifications</small>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                🚀 Send Notification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">💡 Tips</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">✓ Be clear and specific</li>
+                        <li class="mb-2">✓ Use action-oriented language</li>
+                        <li class="mb-2">✓ Keep messages concise</li>
+                        <li class="mb-2">✓ Proofread before sending</li>
+                        <li>✓ Use appropriate notification types</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light border-0">
+                    <h6 class="fw-bold mb-0">📨 Notification Types</h6>
+                </div>
+                <div class="card-body small">
+                    <p class="mb-2"><strong>ℹ️ Info</strong> - General announcements</p>
+                    <p class="mb-2"><strong>✅ Success</strong> - Positive updates</p>
+                    <p class="mb-2"><strong>⚠️ Warning</strong> - Important notices</p>
+                    <p class="mb-0"><strong>❌ Error</strong> - Critical issues</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

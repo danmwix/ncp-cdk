@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}{{ disability.name }} Support Group - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Header Card -->
+      <div class="card shadow-lg border-0 rounded-4 mb-4 animate__animated animate__fadeInUp">
+        <div class="card-header bg-gradient text-white p-4 rounded-top-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="mb-1 animate__animated animate__fadeInDown">
+                💬 {{ disability.name }} Support Group
+              </h3>
+              <small class="text-white-50">{{ group.members|length }} member{{ 's' if group.members|length != 1 else '' }} • {{ messages|length }} message{{ 's' if messages|length != 1 else '' }}</small>
+            </div>
+            <div class="text-right">
+              <span class="badge badge-light px-3 py-2" style="font-size: 0.9rem;">🔗 Connected Community</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          <!-- Messages Section -->
+          <div id="messages-container" class="border rounded-3 p-4 mb-4" style="height: 500px; overflow-y: auto; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+            {% if messages %}
+              {% for message in messages|reverse %}
+              <div class="message-bubble mb-4 animate__animated animate__fadeIn" style="max-width: 85%; {% if message.author == current_user %}margin-left: auto; text-align: right;{% endif %}">
+                <div class="d-flex {% if message.author == current_user %}justify-content-end{% else %}justify-content-start{% endif %} mb-1">
+                  <small class="text-muted" style="font-size: 0.85rem;">
+                    <strong>{{ message.author.name }}</strong> • {{ message.created_at.strftime('%b %d, %I:%M %p') }}
+                  </small>
+                </div>
+                
+                <div class="p-3 rounded-3" style="background: {% if message.author == current_user %}#667eea{% else %}white{% endif %}; color: {% if message.author == current_user %}white{% else %}#333{% endif %}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                  {% if message.content %}
+                    <p class="mb-2">{{ message.content }}</p>
+                  {% endif %}
+                  
+                  <!-- File Attachment Display -->
+                  {% if message.file_path %}
+                    <div class="mt-2 pt-2 border-top" style="border-color: {% if message.author == current_user %}rgba(255,255,255,0.3){% else %}#e0e0e0{% endif %};">
+                      {% if message.file_type.startswith('image') %}
+                        <img src="{{ url_for('static', filename=message.file_path) }}" alt="Uploaded image" class="img-fluid rounded-2" style="max-width: 100%; max-height: 300px; margin-top: 8px;">
+                        <br>
+                      {% elif message.file_type.startswith('video') %}
+                        <video width="100%" height="auto" controls class="rounded-2 mt-2">
+                          <source src="{{ url_for('static', filename=message.file_path) }}" type="{{ message.file_type }}">
+                          Your browser does not support the video tag.
+                        </video>
+                        <br>
+                      {% endif %}
+                      
+                      <a href="{{ url_for('static', filename=message.file_path) }}" download="{{ message.file_name }}" class="btn btn-sm mt-2" style="background: {% if message.author == current_user %}rgba(255,255,255,0.2){% else %}#667eea{% endif %}; color: {% if message.author == current_user %}white{% else %}white{% endif %}; border-radius: 20px;">
+                        📎 {{ message.file_name }} (Download)
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="alert alert-info text-center" role="alert">
+                <p class="mb-0">🌟 No messages yet. Be the first to start a conversation! 👋</p>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Message Input Form with File Upload -->
+          <form method="POST" enctype="multipart/form-data" class="animate__animated animate__fadeInUp">
+            <div class="form-group">
+              <label for="message" class="font-weight-bold text-dark mb-2">Share Your Message</label>
+              <textarea 
+                class="form-control rounded-3 border-2" 
+                id="message"
+                name="message" 
+                placeholder="Share your thoughts, ask questions, or offer support..." 
+                rows="3"
+                style="border-color: #667eea; focus: border-color: #764ba2;"
+              ></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="file" class="font-weight-bold text-dark mb-2">Attach File (Optional)</label>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi">
+                <label class="custom-file-label" for="file">Choose file...</label>
+              </div>
+              <small class="text-muted d-block mt-2">
+                ✓ Allowed: PDF, Word docs, Images (JPG, PNG, GIF, BMP), Videos (MP4, MOV, AVI) • Max size: ~25MB
+              </small>
+            </div>
+
+            <button class="btn btn-primary btn-lg rounded-3 w-100" type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+              📤 Post Message
+            </button>
+            
+            <small class="text-muted d-block mt-3 text-center">✨ Be respectful and supportive. This is a safe space for parents and caregivers.</small>
+          </form>
+        </div>
+      </div>
+
+      <!-- Group Members Card -->
+      <div class="card shadow-lg border-0 rounded-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        <div class="card-header bg-gradient text-white p-3 rounded-top-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h5 class="mb-0">👥 Group Members ({{ group.members|length }})</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row">
+            {% for member in group.members %}
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="p-3 bg-white rounded-3 border border-light hover-shadow" style="transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.15)'" onmouseout="this.style.boxShadow=''">
+                <div class="d-flex align-items-center">
+                  <div class="avatar rounded-circle bg-gradient" style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 12px; font-size: 1.2rem;">
+                    {{ member.name[0].upper() }}
+                  </div>
+                  <div class="flex-grow-1">
+                    <strong class="text-dark">{{ member.name }}</strong>
+                    <br>
+                    <small class="text-muted">{{ member.county or '📍 County not specified' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="text-center mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <a href="{{ url_for('main.forums') }}" class="btn btn-outline-secondary rounded-3 px-4 mx-2">
+          ← Back to Forums
+        </a>
+        <a href="{{ url_for('main.profile') }}" class="btn btn-outline-primary rounded-3 px-4 mx-2">
+          👤 My Profile
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #messages-container {
+    scroll-behavior: smooth;
+  }
+  
+  #messages-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  #messages-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+  }
+  
+  #messages-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+  }
+  
+  .message-bubble {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .hover-shadow {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  }
+  
+  .custom-file-input:lang(en) ~ .custom-file-label::after {
+    content: "Browse";
+  }
+  
+  .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+</style>
+
+<!-- Auto-scroll to bottom on page load -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('messages-container');
+    container.scrollTop = container.scrollHeight;
+    
+    // File input label update
+    document.getElementById('file').addEventListener('change', function(e) {
+      const fileName = e.target.files[0] ? e.target.files[0].name : 'Choose file...';
+      e.target.nextElementSibling.textContent = fileName;
+    });
+  });
+</script>
+{% endblock %}

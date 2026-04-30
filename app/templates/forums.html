@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Support Groups - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeInUp">
+        <div class="card-header bg-primary text-white p-4 rounded-top-4">
+          <h3 class="mb-2 animate__animated animate__fadeInDown">
+            🤝 Explore Support Groups
+          </h3>
+          <p class="text-white-50 mb-0">Join groups based on your child's disability and connect with fellow parents and caregivers across Kenya</p>
+        </div>
+        <div class="card-body p-5" data-aos="zoom-in" data-aos-duration="800">
+          <!-- Disability Categories Grid -->
+          <div class="row">
+            {% for disability in disabilities %}
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+              <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                  <h5 class="card-title text-primary">{{ disability.name }}</h5>
+                  <p class="card-text text-muted">Support group for {{ disability.name }} families.</p>
+                  <a href="{{ url_for('main.group_chat', disability_id=disability.id) }}" 
+                     class="btn btn-outline-primary btn-sm mt-2 animate__animated animate__pulse">
+                    Join Group Chat
+                  </a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Call to Action -->
+          <div class="text-center mt-4 animate__animated animate__fadeInUp">
+            <p class="fw-bold">Don’t see your group? Reach out to create one!</p>
+            <a href="{{ url_for('main.home') }}" class="btn btn-secondary px-4">Back to Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

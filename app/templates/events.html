@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Events Calendar - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center mb-5 animate__animated animate__fadeInDown">
+    <div class="col-lg-10 text-center">
+      <h1 class="display-4 font-weight-bold text-dark mb-3">📅 Events Calendar</h1>
+      <p class="lead text-muted">Upcoming workshops, meetups, and community events for parents and caregivers</p>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Event Creation Button -->
+  {% if current_user.is_admin %}
+  <div class="row mb-4">
+    <div class="col-lg-10 mx-auto">
+      <a href="{{ url_for('main.add_event') }}" class="btn btn-success btn-lg rounded-3" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); border: none;">
+        ➕ Create New Event
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Upcoming Events Section -->
+  <div class="row mb-5 animate__animated animate__fadeInUp">
+    <div class="col-lg-10 mx-auto">
+      <h3 class="font-weight-bold text-dark mb-4">
+        🔔 Upcoming Events
+        <span class="badge badge-primary rounded-pill ml-2">{{ upcoming_events|length }}</span>
+      </h3>
+
+      {% if upcoming_events %}
+        <div class="row">
+          {% for event in upcoming_events %}
+          <div class="col-lg-6 mb-4 animate__animated animate__fadeIn">
+            <div class="card border-0 shadow-lg rounded-4 h-100 event-card" style="overflow: hidden; transition: all 0.3s ease;">
+              <div class="card-header p-0" style="height: 120px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); position: relative; display: flex; align-items: center; justify-content: center; color: white;">
+                <div class="text-center">
+                  <h5 class="font-weight-bold mb-0" style="font-size: 2rem;">
+                    {{ event.date.strftime('%d') }}
+                  </h5>
+                  <small>{{ event.date.strftime('%b %Y') }}</small>
+                </div>
+              </div>
+
+              <div class="card-body p-4">
+                <h5 class="card-title font-weight-bold text-dark mb-2">🎯 {{ event.title }}</h5>
+                
+                <div class="event-details mb-3">
+                  <p class="text-muted mb-2">
+                    <strong>📍 Location:</strong> {{ event.location }}
+                  </p>
+                  <p class="text-muted mb-2">
+                    <strong>⏰ Time:</strong> {{ event.date.strftime('%I:%M %p') }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>👤 Organized by:</strong> {{ event.created_by.name if event.created_by else 'Admin' }}
+                  </p>
+                </div>
+
+                <div class="event-description mb-4">
+                  <p class="text-dark" style="line-height: 1.6;">{{ event.description[:200] }}{% if event.description|length > 200 %}...{% endif %}</p>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary btn-sm rounded-3 flex-grow-1" onclick="alert('Reminder set! You will be notified about this event.')">
+                    🔔 Set Reminder
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm rounded-3 flex-grow-1" onclick="alert('Event added to your calendar!')">
+                    📌 Add to Calendar
+                  </button>
+                  {% if current_user.is_admin %}
+                  <form method="POST" action="{{ url_for('main.delete_event', event_id=event.id) }}" style="display: inline;" onsubmit="return confirm('Delete this event?');">
+                    <button type="submit" class="btn btn-danger btn-sm rounded-3">🗑️</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info rounded-4 p-5 text-center" role="alert">
+          <h5 class="font-weight-bold mb-2">📭 No Upcoming Events Yet</h5>
+          <p class="text-muted mb-0">Check back soon for upcoming workshops, meetups, and community events. Follow us to stay updated!</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Past Events Section -->
+  {% if past_events %}
+  <div class="row mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+    <div class="col-lg-10 mx-auto">
+      <h3 class="font-weight-bold text-dark mb-4">
+        📚 Recent Events
+        <span class="badge badge-secondary rounded-pill ml-2">{{ past_events|length }}</span>
+      </h3>
+
+      <div class="timeline">
+        {% for event in past_events %}
+        <div class="timeline-item mb-4 pb-4" style="border-left: 3px solid #667eea; padding-left: 1.5rem; position: relative;">
+          <div style="position: absolute; left: -10px; top: 0; width: 15px; height: 15px; background: #667eea; border-radius: 50%; border: 3px solid white;"></div>
+          
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+              <h6 class="card-title font-weight-bold text-dark mb-1">✓ {{ event.title }}</h6>
+              <small class="text-muted d-block mb-2">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</small>
+              <p class="text-muted mb-0">{{ event.description[:150] }}...</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Event Categories/Tips Section -->
+  <div class="row mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+    <div class="col-lg-10 mx-auto">
+      <h3 class="font-weight-bold text-dark mb-4">📋 Types of Events</h3>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="event-type-card p-4 rounded-4 text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <h5 class="font-weight-bold mb-2" style="font-size: 2rem;">🎓</h5>
+            <h6 class="font-weight-bold mb-2">Workshops & Training</h6>
+            <p class="text-white-50 mb-0">Skills development for parents and caregivers</p>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="event-type-card p-4 rounded-4 text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <h5 class="font-weight-bold mb-2" style="font-size: 2rem;">👥</h5>
+            <h6 class="font-weight-bold mb-2">Community Meetups</h6>
+            <p class="text-white-50 mb-0">Connect with other parents and share experiences</p>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="event-type-card p-4 rounded-4 text-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+            <h5 class="font-weight-bold mb-2" style="font-size: 2rem;">🎉</h5>
+            <h6 class="font-weight-bold mb-2">Celebrations & Awareness</h6>
+            <p class="text-white-50 mb-0">International days and community celebrations</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="row animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+    <div class="col-lg-10 mx-auto">
+      <div class="card border-0 rounded-4 p-5 text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h3 class="font-weight-bold mb-3">Want to Host an Event?</h3>
+        <p class="lead mb-4">Admins can create and manage community events. Share knowledge, build connections, and support fellow parents.</p>
+        {% if not current_user.is_admin %}
+        <p class="text-white-50 mb-0">Contact us to learn more about becoming an event organizer.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .event-card {
+    cursor: pointer;
+  }
+
+  .event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .event-type-card {
+    transition: all 0.3s ease;
+  }
+
+  .event-type-card:hover {
+    transform: scale(1.05);
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+    border-left: none;
+  }
+</style>
+{% endblock %}

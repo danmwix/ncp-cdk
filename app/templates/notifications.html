@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Notifications - NCP-CDK Kenya{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div>
+                <h1 class="display-5 fw-bold">🔔 Notifications</h1>
+                <p class="lead text-muted">View all your notifications from the NCP-CDK Kenya community</p>
+            </div>
+        </div>
+        <div class="col-lg-4 text-end">
+            {% if notifications.items %}
+                <a href="{{ url_for('main.notifications') }}" class="btn btn-sm btn-outline-secondary" onclick="location.reload();">
+                    🔄 Refresh
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="row">
+        <div class="col-lg-8">
+            {% if notifications.items %}
+                {% for notification in notifications.items %}
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon based on type -->
+                                        <div style="font-size: 1.5rem;">
+                                            {% if notification.notification_type == 'success' %}
+                                                ✅
+                                            {% elif notification.notification_type == 'warning' %}
+                                                ⚠️
+                                            {% elif notification.notification_type == 'error' %}
+                                                ❌
+                                            {% else %}
+                                                ℹ️
+                                            {% endif %}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="fw-bold mb-1">
+                                                        {{ notification.title }}
+                                                        {% if not notification.is_read %}
+                                                            <span class="badge bg-primary">New</span>
+                                                        {% endif %}
+                                                    </h6>
+                                                    <p class="text-muted mb-2">{{ notification.message }}</p>
+                                                    <small class="text-muted">
+                                                        {{ notification.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="btn-group-vertical" role="group">
+                                        {% if not notification.is_read %}
+                                            <form method="POST" action="{{ url_for('main.mark_notification_read', notification_id=notification.id) }}" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary" title="Mark as read">✓ Read</button>
+                                            </form>
+                                        {% endif %}
+                                        <form method="POST" action="{{ url_for('main.delete_notification', notification_id=notification.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">🗑️ Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if notifications.pages > 1 %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if notifications.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('main.notifications', page=notifications.prev_num) }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for page_num in notifications.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num == notifications.page %}
+                                        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                                    {% else %}
+                                        <li class="page-item"><a class="page-link" href="{{ url_for('main.notifications', page=page_num) }}">{{ page_num }}</a></li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if notifications.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('main.notifications', page=notifications.next_num) }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <h5>📭 No notifications yet</h5>
+                    <p class="mb-0">You don't have any notifications. Check back later for updates!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">📬 Notification Center</h6>
+                    <p class="small text-muted mb-3">
+                        You'll receive notifications for:
+                    </p>
+                    <ul class="small list-unstyled">
+                        <li class="mb-2">✓ Password reset confirmations</li>
+                        <li class="mb-2">✓ Story approval/rejection</li>
+                        <li class="mb-2">✓ Admin promotions</li>
+                        <li class="mb-2">✓ Platform announcements</li>
+                        <li>✓ Community updates</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-2">💡 Notification Types</h6>
+                    <p class="small mb-2">
+                        <span class="badge bg-success">✅ Success</span> Good news!
+                    </p>
+                    <p class="small mb-2">
+                        <span class="badge bg-warning">⚠️ Warning</span> Important notice
+                    </p>
+                    <p class="small mb-2">
+                        <span class="badge bg-danger">❌ Error</span> Critical issue
+                    </p>
+                    <p class="small">
+                        <span class="badge bg-info">ℹ️ Info</span> General information
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

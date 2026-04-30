@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Login - NCP-CDK{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-5">
+        <h3 class="text-center mb-4 text-primary">Welcome Back</h3>
+        <form method="POST" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+          </div>
+          <div class="form-check mb-3">
+            {{ form.remember(class="form-check-input") }}
+            {{ form.remember.label(class="form-check-label") }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Login</button>
+        </form>
+        <div class="text-center mt-3">
+          <p>Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-primary">Register here</a></p>
+          <p><a href="{{ url_for('auth.forgot_password') }}" class="text-muted text-decoration-none">🔐 Forgot password?</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

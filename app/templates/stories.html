@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Stories & Testimonials - NCP-CDK{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center mb-5 animate__animated animate__fadeInDown">
+    <div class="col-lg-10 text-center">
+      <h1 class="display-4 font-weight-bold text-dark mb-3">💝 Stories & Testimonials</h1>
+      <p class="lead text-muted">Real experiences from parents and caregivers in our community. Share your journey and inspire others.</p>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Story Button -->
+  <div class="row mb-5 justify-content-center">
+    <div class="col-lg-10">
+      <div class="text-center mb-4">
+        <a href="{{ url_for('main.submit_story') }}" class="btn btn-lg rounded-3 px-5" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; font-weight: bold;">
+          📝 Share Your Story
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stories Grid -->
+  {% if stories %}
+    <div class="row animate__animated animate__fadeInUp">
+      {% for story in stories %}
+      <div class="col-lg-6 mb-5">
+        <div class="story-card card border-0 shadow-lg rounded-4 h-100 animate__animated animate__fadeIn">
+          <!-- Story Header -->
+          <div class="card-header p-4 border-bottom" style="background: linear-gradient(135deg, {% if loop.index % 3 == 0 %}#fa709a 0%, #fee140{% elif loop.index % 3 == 1 %}#f093fb 0%, #f5576c{% else %}#4facfe 0%, #00f2fe{% endif %} 100%); color: white;">
+            <h5 class="card-title font-weight-bold mb-2">{{ story.title }}</h5>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-white-50">
+                {% if story.is_anonymous %}
+                  👤 Anonymous
+                {% else %}
+                  👤 {{ story.author.name }}
+                {% endif %}
+              </small>
+              <small class="text-white-50">{{ story.created_at.strftime('%b %d, %Y') }}</small>
+            </div>
+          </div>
+
+          <!-- Story Content -->
+          <div class="card-body p-4">
+            <p class="story-content text-dark" style="line-height: 1.8; font-size: 1rem;">
+              {{ story.content }}
+            </p>
+          </div>
+
+          <!-- Story Footer -->
+          <div class="card-footer bg-light rounded-bottom-4 p-4 border-0">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <button class="btn btn-sm btn-outline-primary rounded-3" onclick="likeStory({{ story.id }})">
+                  ❤️ <span id="like-{{ story.id }}">0</span>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary rounded-3 ml-2" onclick="shareStory('{{ story.title }}')">
+                  🔗 Share
+                </button>
+              </div>
+              <small class="text-muted">Inspiring story</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8">
+        <div class="alert alert-info rounded-4 p-5 text-center" role="alert" style="background: linear-gradient(135deg, #e0f4ff 0%, #f0f4ff 100%); border: none;">
+          <h5 class="font-weight-bold mb-2">📖 No Stories Yet</h5>
+          <p class="text-muted mb-4">Be the first to share your journey! Your story can inspire and support other parents in the community.</p>
+          <a href="{{ url_for('main.submit_story') }}" class="btn btn-primary rounded-3 px-5">
+            Share Your Story
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Story Categories -->
+  <div class="row mt-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+    <div class="col-lg-10 mx-auto">
+      <h3 class="font-weight-bold text-dark mb-4">📚 Story Topics</h3>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="topic-card p-4 rounded-3 border-2 text-center h-100" style="border-color: #667eea; cursor: pointer; transition: all 0.3s ease;">
+            <h6 class="font-weight-bold mb-2" style="font-size: 1.5rem;">🎓</h6>
+            <h6 class="font-weight-bold">Education Journey</h6>
+            <small class="text-muted">School experiences and learning victories</small>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="topic-card p-4 rounded-3 border-2 text-center h-100" style="border-color: #764ba2; cursor: pointer; transition: all 0.3s ease;">
+            <h6 class="font-weight-bold mb-2" style="font-size: 1.5rem;">💪</h6>
+            <h6 class="font-weight-bold">Personal Growth</h6>
+            <small class="text-muted">Overcoming challenges and achievements</small>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="topic-card p-4 rounded-3 border-2 text-center h-100" style="border-color: #f5576c; cursor: pointer; transition: all 0.3s ease;">
+            <h6 class="font-weight-bold mb-2" style="font-size: 1.5rem;">👨‍👩‍👧</h6>
+            <h6 class="font-weight-bold">Family Moments</h6>
+            <small class="text-muted">Beautiful family experiences and milestones</small>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="topic-card p-4 rounded-3 border-2 text-center h-100" style="border-color: #4facfe; cursor: pointer; transition: all 0.3s ease;">
+            <h6 class="font-weight-bold mb-2" style="font-size: 1.5rem;">🏥</h6>
+            <h6 class="font-weight-bold">Health & Therapy</h6>
+            <small class="text-muted">Medical journeys and therapy breakthroughs</small>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="topic-card p-4 rounded-3 border-2 text-center h-100" style="border-color: #fee140; cursor: pointer; transition: all 0.3s ease; color: #333;">
+            <h6 class="font-weight-bold mb-2" style="font-size: 1.5rem;">🤝</h6>
+            <h6 class="font-weight-bold">Community Support</h6>
+            <small class="text-muted">How community helped and inspired</small>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="topic-card p-4 rounded-3 border-2 text-center h-100" style="border-color: #56ab2f; cursor: pointer; transition: all 0.3s ease; color: white;">
+            <h6 class="font-weight-bold mb-2" style="font-size: 1.5rem;">✨</h6>
+            <h6 class="font-weight-bold">Inspirational</h6>
+            <small class="text-muted">Uplifting and motivational stories</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Impact Stats -->
+  <div class="row mt-5 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+    <div class="col-lg-10 mx-auto">
+      <div class="card border-0 rounded-4 p-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div class="row text-center">
+          <div class="col-md-4 mb-4 mb-md-0">
+            <h3 class="font-weight-bold" style="font-size: 2.5rem;">{{ stories|length }}</h3>
+            <p class="mb-0">Stories Shared</p>
+          </div>
+          <div class="col-md-4 mb-4 mb-md-0">
+            <h3 class="font-weight-bold" style="font-size: 2.5rem;">{{ stories|length * 15 }}</h3>
+            <p class="mb-0">Lives Inspired</p>
+          </div>
+          <div class="col-md-4">
+            <h3 class="font-weight-bold" style="font-size: 2.5rem;">♾️</h3>
+            <p class="mb-0">Hope Shared</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why Share Your Story -->
+  <div class="row mt-5 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+    <div class="col-lg-10 mx-auto">
+      <h3 class="font-weight-bold text-dark mb-4">💭 Why Share Your Story?</h3>
+      
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="benefit-item p-4 rounded-3" style="background: #f8f9ff; border-left: 4px solid #667eea;">
+            <h6 class="font-weight-bold text-dark mb-2">🌟 Inspire Others</h6>
+            <p class="text-muted mb-0">Your experiences can give hope and practical insights to parents facing similar challenges.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="benefit-item p-4 rounded-3" style="background: #fff8f8; border-left: 4px solid #f5576c;">
+            <h6 class="font-weight-bold text-dark mb-2">🤝 Build Community</h6>
+            <p class="text-muted mb-0">Connect with others who understand your journey and celebrate your victories together.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="benefit-item p-4 rounded-3" style="background: #f8fff8; border-left: 4px solid #56ab2f;">
+            <h6 class="font-weight-bold text-dark mb-2">💪 Healing Journey</h6>
+            <p class="text-muted mb-0">Sharing can be therapeutic and help you process emotions and growth.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="benefit-item p-4 rounded-3" style="background: #f8f9ff; border-left: 4px solid #4facfe;">
+            <h6 class="font-weight-bold text-dark mb-2">📣 Raise Awareness</h6>
+            <p class="text-muted mb-0">Help educate others about disability and create a more inclusive society.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="row mt-5 mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+    <div class="col-lg-10 mx-auto">
+      <div class="text-center">
+        <a href="{{ url_for('main.submit_story') }}" class="btn btn-lg rounded-3 px-5" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; font-weight: bold;">
+          ✍️ Share Your Story Today
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .story-card {
+    transition: all 0.3s ease;
+  }
+
+  .story-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .story-content {
+    max-height: 200px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+  }
+
+  .topic-card {
+    transition: all 0.3s ease;
+  }
+
+  .topic-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<script>
+  function likeStory(storyId) {
+    const likeBtn = document.getElementById(`like-${storyId}`);
+    let count = parseInt(likeBtn.textContent) || 0;
+    likeBtn.textContent = count + 1;
+  }
+
+  function shareStory(title) {
+    const text = `Check out this inspiring story: "${title}" on NCP-CDK`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'NCP-CDK Story',
+        text: text,
+        url: window.location.href
+      });
+    } else {
+      alert('Story link copied! Share it with others.');
+    }
+  }
+</script>
+{% endblock %}

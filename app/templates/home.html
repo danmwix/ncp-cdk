@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}Home - NCP-CDK Kenya{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero text-white animate__animated animate__fadeIn d-flex align-items-center"
+     style="
+       background-image: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('{{ url_for('static', filename='images/IMG-20260424-WA0010.jpg') }}');
+       background-size: cover;
+       background-position: center;
+       background-repeat: no-repeat;
+       min-height: calc(100vh - 80px);
+       padding: 60px 0;
+     ">
+
+  <div class="container text-center" data-aos="zoom-in" data-aos-duration="1000">
+    
+    <h1 class="display-4 fw-bold mb-4">
+      Welcome to NCP-CDK Kenya
+    </h1>
+
+    <p class="lead mb-4 px-2 px-md-5">
+      A safe space for parents and caregivers of children with disabilities 
+      to connect, share, and support each other.
+    </p>
+
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 animate__animated animate__fadeInUp">
+      
+      {% if not current_user.is_authenticated %}
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5">
+        Join Our Community
+      </a>
+      <a href="{{ url_for('admin.login') }}" class="btn btn-dark btn-lg px-5" title="Admin access only">
+        👑 Admin Login
+      </a>
+      {% endif %}
+
+      <a href="{{ url_for('main.forums') }}" class="btn btn-outline-light btn-lg px-5">
+        Explore Support Groups
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<!-- Info Cards -->
+<div class="container my-5">
+  <div class="row text-center">
+
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Connect by Disability</h5>
+          <p class="card-text">
+            Find and join support groups based on your child's specific needs (ASD, VI, PD, etc.).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Share Experiences</h5>
+          <p class="card-text">
+            Real stories, advice, and encouragement from Kenyan parents who understand.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Local Support</h5>
+          <p class="card-text">
+            Connect with parents in your county for meetups and local resources.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Leadership Slideshow Section -->
+<div class="leadership-section py-5" style="background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);">
+  <div class="container">
+
+    <div class="text-center mb-5" data-aos="fade-up">
+      <h2 class="fw-bold text-white display-6">Our Leadership</h2>
+      <p class="text-white-50">Meet the dedicated team driving NCP-CDK Kenya forward</p>
+      <div style="width: 60px; height: 4px; background: #e76f51; border-radius: 2px; margin: 0 auto;"></div>
+    </div>
+
+    <!-- Slideshow -->
+    <div id="leadershipCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+
+      <!-- Indicators -->
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#leadershipCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Jonathan Metet"></button>
+        <button type="button" data-bs-target="#leadershipCarousel" data-bs-slide-to="1" aria-label="Ibrahim Adan"></button>
+        <button type="button" data-bs-target="#leadershipCarousel" data-bs-slide-to="2" aria-label="Angie Kamande"></button>
+      </div>
+
+      <!-- Slides -->
+      <div class="carousel-inner">
+
+        <!-- Slide 1: Jonathan Metet -->
+        <div class="carousel-item active">
+          <div class="d-flex justify-content-center align-items-center py-4">
+            <div class="leader-card text-center">
+              <div class="leader-img-wrapper mx-auto mb-4">
+                <img src="{{ url_for('static', filename='images/IMG-20260429-WA0004.jpg') }}"
+                     alt="Jonathan Metet"
+                     class="leader-img">
+              </div>
+              <h3 class="fw-bold text-white mb-1">Jonathan Metet</h3>
+              <span class="leader-role-badge">National Chairman</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Ibrahim Adan -->
+        <div class="carousel-item">
+          <div class="d-flex justify-content-center align-items-center py-4">
+            <div class="leader-card text-center">
+              <div class="leader-img-wrapper mx-auto mb-4">
+                <img src="{{ url_for('static', filename='images/IMG-20260429-WA0003.jpg') }}"
+                     alt="Ibrahim Adan"
+                     class="leader-img">
+              </div>
+              <h3 class="fw-bold text-white mb-1">Ibrahim Adan</h3>
+              <span class="leader-role-badge">National Organizing Secretary</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Angie Kamande -->
+        <div class="carousel-item">
+          <div class="d-flex justify-content-center align-items-center py-4">
+            <div class="leader-card text-center">
+              <div class="leader-img-wrapper mx-auto mb-4">
+                <img src="{{ url_for('static', filename='images/IMG-20260429-WA0005.jpg') }}"
+                     alt="Angie Kamande"
+                     class="leader-img">
+              </div>
+              <h3 class="fw-bold text-white mb-1">Angie Kamande</h3>
+              <span class="leader-role-badge">National Coordinator — Internal &amp; External Communication and Partnerships</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#leadershipCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#leadershipCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .leader-card {
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .leader-img-wrapper {
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #e76f51;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  .leader-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .leader-role-badge {
+    display: inline-block;
+    background: rgba(231, 111, 81, 0.2);
+    color: #e76f51;
+    border: 1px solid #e76f51;
+    border-radius: 50px;
+    padding: 6px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  #leadershipCarousel .carousel-indicators [data-bs-target] {
+    background-color: #e76f51;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    opacity: 0.5;
+  }
+
+  #leadershipCarousel .carousel-indicators .active {
+    opacity: 1;
+  }
+
+  #leadershipCarousel .carousel-control-prev,
+  #leadershipCarousel .carousel-control-next {
+    width: 48px;
+    height: 48px;
+    background: rgba(231, 111, 81, 0.7);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+</style>
+
+{% endblock %}

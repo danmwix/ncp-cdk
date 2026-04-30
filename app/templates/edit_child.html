@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Edit Child - NCP-CDK{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeInUp">
+      <div class="card-body p-5" data-aos="zoom-in" data-aos-duration="800">
+        <h3 class="text-center text-primary mb-4 animate__animated animate__fadeInDown">Edit Child Details</h3>
+        <form method="POST" novalidate class="animate__animated animate__fadeInUp">
+          {{ form.hidden_tag() }}
+          
+          <!-- Child Name -->
+          <div class="mb-3" data-aos="fade-right">
+            {{ form.name.label(class="form-label fw-bold") }}
+            {{ form.name(class="form-control") }}
+          </div>
+          
+          <!-- Child Age -->
+          <div class="mb-3" data-aos="fade-left">
+            {{ form.age.label(class="form-label fw-bold") }}
+            {{ form.age(class="form-control") }}
+          </div>
+          
+          <!-- Disabilities -->
+          <div class="mb-3" data-aos="fade-up" data-aos-delay="200">
+            {{ form.disabilities.label(class="form-label fw-bold") }}
+            <div class="row g-2">
+              {% for subfield in form.disabilities %}
+              <div class="col-md-6">
+                <div class="form-check form-switch p-2 border rounded bg-light">
+                  {{ subfield(class="form-check-input") }}
+                  {{ subfield.label(class="form-check-label fw-medium") }}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <!-- Save Button -->
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold animate__animated animate__pulse">
+            Save Child Details
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

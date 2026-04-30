@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}View Resources - NCP-CDK Kenya{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold">📚 Resource Library</h1>
+                    <p class="lead text-muted">Manage all resources available to the community</p>
+                </div>
+                <a href="{{ url_for('admin.add_resources') }}" class="btn btn-primary">➕ Add New Resource</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources List -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-0 py-3">
+                    <h5 class="mb-0 fw-bold">Resources ({{ resources.total }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if resources.items %}
+                        {% for resource in resources.items %}
+                            <div class="card mb-3 border-0 border-bottom">
+                                <div class="card-body pb-4">
+                                    <div class="row">
+                                        <div class="col-lg-9">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div style="font-size: 1.8rem;">
+                                                    {% if resource.resource_type == 'link' %}
+                                                        🔗
+                                                    {% elif resource.resource_type == 'pdf' %}
+                                                        📄
+                                                    {% elif resource.resource_type == 'video' %}
+                                                        🎥
+                                                    {% elif resource.resource_type == 'guide' %}
+                                                        📚
+                                                    {% elif resource.resource_type == 'tool' %}
+                                                        🛠️
+                                                    {% else %}
+                                                        🏢
+                                                    {% endif %}
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <h5 class="mb-1"><strong>{{ resource.title }}</strong></h5>
+                                                    <p class="text-muted mb-2">{{ resource.description[:150] }}{% if resource.description|length > 150 %}...{% endif %}</p>
+                                                    <p class="mb-0">
+                                                        <small>
+                                                            <a href="{{ resource.resource_url }}" target="_blank" class="text-primary text-decoration-none">
+                                                                🔗 Visit Resource
+                                                            </a>
+                                                            {% if resource.disability %}
+                                                                • <span class="badge bg-secondary">{{ resource.disability.name }}</span>
+                                                            {% else %}
+                                                                • <span class="badge bg-info">For All</span>
+                                                            {% endif %}
+                                                            • Added by {{ resource.created_by.name }}
+                                                            • {{ resource.created_at.strftime('%b %d, %Y') }}
+                                                        </small>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="text-end">
+                                                <form method="POST" style="display: inline;" onsubmit="return confirm('Delete this resource?');">
+                                                    <input type="hidden" name="resource_id" value="{{ resource.id }}">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        🗑️ Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Pagination -->
+                        {% if resources.pages > 1 %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if resources.has_prev %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('admin.view_resources', page=resources.prev_num) }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for page_num in resources.iter_pages() %}
+                                        {% if page_num %}
+                                            {% if page_num == resources.page %}
+                                                <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                                            {% else %}
+                                                <li class="page-item"><a class="page-link" href="{{ url_for('admin.view_resources', page=page_num) }}">{{ page_num }}</a></li>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if resources.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('admin.view_resources', page=resources.next_num) }}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-0">No resources added yet. <a href="{{ url_for('admin.add_resources') }}">Create the first one</a></p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

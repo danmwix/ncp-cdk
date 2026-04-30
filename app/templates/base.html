@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NCP-CDK Kenya{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"/>
+
+  <!-- PWA -->
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#e76f51">
+
+  <style>
+    :root {
+      --primary: #e76f51;
+      --secondary: #2a9d8f;
+      --accent: #264653;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(to bottom, #f8f9fa, #f1f3f5);
+      color: var(--accent);
+      min-height: 100vh;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    .navbar {
+      background: rgba(255,255,255,0.95) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--primary) !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ✅ LOGO IMAGE STYLE */
+    .navbar-brand img {
+      height: 40px;
+      width: 40px;
+      object-fit: cover;
+      border-radius: 50%; /* makes it circular */
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--accent) !important;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover {
+      color: var(--primary) !important;
+      transform: translateY(-2px);
+    }
+
+    .card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border: none;
+      padding: 12px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .footer {
+      background: var(--accent);
+      color: white;
+      padding: 40px 0 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top animate__animated animate__fadeInDown">
+    <div class="container">
+
+      <!-- ✅ LOGO ADDED HERE -->
+      <a class="navbar-brand" href="{{ url_for('main.home') }}">
+        <img src="{{ url_for('static', filename='images/IMG-20260424-WA0010.jpg') }}" alt="Logo">
+        NCP-CDK Kenya
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if current_user.is_authenticated %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">👤 Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.forums') }}">💬 Groups</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.resources') }}">📚 Resources</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.events') }}">📅 Events</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.stories') }}">💝 Stories</a></li>
+            <li class="nav-item">
+              <a class="nav-link position-relative" href="{{ url_for('main.notifications') }}" title="Your notifications">
+                🔔 Notifications
+                <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                  <span id="unread-count"></span>
+                </span>
+              </a>
+            </li>
+            {% if current_user.is_admin %}
+              <li class="nav-item">
+                <a class="nav-link text-warning fw-bold" href="{{ url_for('admin.dashboard') }}">👑 Admin Panel</a>
+              </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link text-danger fw-bold" href="{{ url_for('auth.logout') }}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+            <li class="nav-item">
+              <a class="btn btn-primary btn-sm ms-3" href="{{ url_for('auth.register') }}">Join Community</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container mt-5 pt-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm animate__animated animate__fadeInDown" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer mt-5 animate__animated animate__fadeInUp">
+    <div class="container text-center">
+      <p class="mb-1">&copy; 2026 NCP-CDK Kenya • Nexus of Caregivers and Parents of Children with Disabilities</p>
+      <p class="small mb-0">Building a stronger support network for every Kenyan family ❤️</p>
+    </div>
+  </footer>
+
+    <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+  <script>
+    AOS.init();
+
+    // Ensure body is fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+      document.body.classList.add("loaded");
+      
+      // Fix for modal backdrop issues
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function () {
+          document.body.classList.add('modal-open');
+        });
+      });
+    });
+  </script>
+
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+          .then(() => console.log('✅ Service Worker registered'))
+          .catch(err => console.log('Service Worker error:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>

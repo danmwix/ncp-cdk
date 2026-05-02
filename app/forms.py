@@ -4,8 +4,13 @@ from wtforms import (
     IntegerField, SelectMultipleField, BooleanField,
     FieldList, FormField
 )
-from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Optional
 from wtforms.widgets import ListWidget, CheckboxInput
+
+# Custom Checkbox Field
+class MultiCheckboxField(SelectMultipleField):
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 # All 47 Kenyan counties
 KENYA_COUNTIES = [
@@ -37,7 +42,7 @@ KENYA_COUNTIES = [
     ('Meru', 'Meru'),
     ('Migori', 'Migori'),
     ('Mombasa', 'Mombasa'),
-    ('Murang\'a', 'Murang\'a'),
+    ("Murang'a", "Murang'a"),
     ('Nairobi', 'Nairobi'),
     ('Nakuru', 'Nakuru'),
     ('Nandi', 'Nandi'),
@@ -64,7 +69,7 @@ DISABILITY_CATEGORIES = {
         'code': 'MOH/276A',
         'subcategories': [
             'AMELIA', 'ACQUIRED BRAIN INJURIES', 'CEREBRAL PALSY', 'CONGENITAL HIP DISLOCATION',
-            'ERB\'S PALSY', 'HEMIPLEGIA', 'HYDROCEPHALUS', 'KLUMPKE\'S PALSY', 'MONOPLEGIA',
+            "ERB'S PALSY", 'HEMIPLEGIA', 'HYDROCEPHALUS', "KLUMPKE'S PALSY", 'MONOPLEGIA',
             'AMPUTATION', 'ARTHRITIS', 'ATHROGRYPOSIS', 'ANKYLOSING SPONDYLOSIS', 'CONGENITAL DEFORMITIES',
             'SHORT STATURE', 'FREEMAN SHELDON SYNDROME', 'KYPHOSCOLIOSIS', 'OSTEOGENESIS IMPERFECTA',
             'POLIO', 'PARAPLEGIA', 'ALBINISM', 'QUADRIPLEGIA', 'SPINA BIFIDA', 'CONTRACTURES',
@@ -109,7 +114,7 @@ DISABILITY_CATEGORIES = {
             'TOTAL ANODONTIA', 'LOSS OF JAWS', 'IMPAIRMENTS AFFECTING NERVES', 'LOSS/MISSING SOFT TISSUE',
             'FACIAL PAINS AND SYNDROME', 'XEROSTOMIA', 'TRISMUS', 'TOTAL JAW RESORPTION',
             'MICROGNATHIA (COMPLETE IMPAIRMENT)', 'MICROGNATHIA (UNILATERAL OR BILATERAL IMPAIRMENT)',
-            'TEMPORAL-MANDIBULAR JOINT ANKYLOSIS', 'AGEUSIA', 'BELL\'S PALSY AND OTHER MOTOR NERVE DEFECTS',
+            'TEMPORAL-MANDIBULAR JOINT ANKYLOSIS', 'AGEUSIA', "BELL'S PALSY AND OTHER MOTOR NERVE DEFECTS",
             'SALIVARY GLANDS DISORDERS', 'CLEFT LIP AND PALATE'
         ]
     },
@@ -120,9 +125,9 @@ DISABILITY_CATEGORIES = {
             'VITILIGO', 'COPD', 'CHRONIC ISCHEMIC HEART DISEASE', 'CARDIOMYOPATHY', 'CYSTIC FIBROSIS',
             'RHEUMATIC HEART DISEASE', 'SYMPTOMATIC CONGENITAL HEART DISEASE', 'FIBROMYALGIA',
             'MUSCULAR DYSTROPHY', 'SEVERE SYSTEMIC LUPUS ERYTHEMATOSUS', 'RHEUMATOID ARTHRITIS',
-            'REITER\'S SYNDROME', 'POLYMYOSITIS', 'DEMENTIA', 'ALS (AMYOTROPHIC LATERAL SCLEROSIS)',
-            'PARKINSON\'S', 'HEREDITARY NEUROPATHY', 'EPILEPSY', 'INCLUSION TYPE MYOSITIS',
-            'HUNTINGTON\'S DISEASE MOTOR', 'FRIEDREICH\'S ATAXIA', 'SPINOCEREBELLAR DEGENERATION',
+            "REITER'S SYNDROME", 'POLYMYOSITIS', 'DEMENTIA', 'ALS (AMYOTROPHIC LATERAL SCLEROSIS)',
+            "PARKINSON'S", 'HEREDITARY NEUROPATHY', 'EPILEPSY', 'INCLUSION TYPE MYOSITIS',
+            "HUNTINGTON'S DISEASE MOTOR", "FRIEDREICH'S ATAXIA", 'SPINOCEREBELLAR DEGENERATION',
             'COMA AND PERSISTENT VEGETATIVE STATE', 'CHRONIC FATIGUE SYNDROME', 'STROKE',
             'BRAIN TUMORS', 'SPINAL CORD INJURY', 'ARACHNOIDITIS', 'HAEMATOLOGICAL E.G LEUKEMIA',
             'SOLID ORGANS', 'BONE/SOFT TISSUE TUMORS RESULTING IN AMPUTATION', 'HEAD AND NECK TUMORS',
@@ -133,14 +138,36 @@ DISABILITY_CATEGORIES = {
     }
 }
 
+# Build a flat list of ALL possible subcategory values across all categories
+# This is used to make WTForms accept any valid subcategory on form submission
+ALL_SUBCATEGORIES = [('', 'Select Subcategory')]
+for cat_data in DISABILITY_CATEGORIES.values():
+    for sub in cat_data['subcategories']:
+        ALL_SUBCATEGORIES.append((sub, sub))
+
+# Build category choices
+CATEGORY_CHOICES = [('', 'Select Category')] + [(cat, cat) for cat in DISABILITY_CATEGORIES.keys()]
+
+
 class ChildForm(FlaskForm):
     class Meta:
         csrf = False
+
+    name = StringField("Child's Name", validators=[Optional(), Length(max=100)])
+    age = IntegerField("Child's Age", validators=[Optional(), NumberRange(min=0, max=25, message="Enter a valid age")])
     
-    name = StringField("Child's Name", validators=[Length(max=100)])
-    age = IntegerField("Child's Age", validators=[NumberRange(min=0, max=25, message="Enter a valid age")])
-    disability_category = SelectField("Disability Category", choices=[], validators=[DataRequired(message="Select a disability category")])
-    disability_subcategory = SelectField("Disability Subcategory", choices=[], validators=[DataRequired(message="Select a disability subcategory")])
+    # KEY FIX: Set choices to ALL possible values so WTForms validation passes
+    disability_category = SelectField(
+        "Disability Category",
+        choices=CATEGORY_CHOICES,
+        validators=[Optional()]
+    )
+    disability_subcategory = SelectField(
+        "Disability Subcategory",
+        choices=ALL_SUBCATEGORIES,
+        validators=[Optional()]
+    )
+
 
 class RegistrationForm(FlaskForm):
     name = StringField('Full Name', validators=[DataRequired(message="Full name is required"), Length(min=2, max=100)])
@@ -149,10 +176,10 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField('Confirm Password', validators=[DataRequired(message="Please confirm your password"), EqualTo('password', message="Passwords must match")])
     county = SelectField('Your County', choices=KENYA_COUNTIES, validators=[DataRequired(message="County selection is required")])
 
-    # Flexible number of children (min 1, max 10)
     children = FieldList(FormField(ChildForm), min_entries=1, max_entries=10)
 
     submit = SubmitField('Create Account & Join Community')
+
 
 class LoginForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired(message="Email is required"), Email(message="Enter a valid email address")])
@@ -160,29 +187,34 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+
 class AdminLoginForm(FlaskForm):
     email = StringField('Admin Email Address', validators=[DataRequired(message="Email is required"), Email(message="Enter a valid email address")])
     password = PasswordField('Password', validators=[DataRequired(message="Password is required")])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Admin Login')
 
+
 class ForgotPasswordForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired(message="Email is required"), Email(message="Enter a valid email address")])
     submit = SubmitField('Send Password Reset Email')
+
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired(message="Password is required"), Length(min=6, message="Password must be at least 6 characters")])
     password2 = PasswordField('Confirm Password', validators=[DataRequired(message="Please confirm your password"), EqualTo('password', message="Passwords must match")])
     submit = SubmitField('Reset Password')
 
+
 class EditProfileForm(FlaskForm):
     name = StringField('Full Name', validators=[DataRequired(message="Full name is required"), Length(max=100)])
     county = SelectField('Your County', choices=KENYA_COUNTIES, validators=[DataRequired(message="County selection is required")])
     submit = SubmitField('Save Changes')
 
+
 class EditChildForm(FlaskForm):
     name = StringField('Child Name', validators=[DataRequired(message="Child name is required"), Length(max=100)])
     age = IntegerField('Child Age', validators=[DataRequired(message="Age is required"), NumberRange(min=0, max=25, message="Enter a valid age")])
-    disability_category = SelectField("Disability Category", choices=[], validators=[DataRequired(message="Select a disability category")])
-    disability_subcategory = SelectField("Disability Subcategory", choices=[], validators=[DataRequired(message="Select a disability subcategory")])
+    disability_category = SelectField("Disability Category", choices=CATEGORY_CHOICES, validators=[DataRequired(message="Select a disability category")])
+    disability_subcategory = SelectField("Disability Subcategory", choices=ALL_SUBCATEGORIES, validators=[DataRequired(message="Select a disability subcategory")])
     submit = SubmitField('Save Child Details')

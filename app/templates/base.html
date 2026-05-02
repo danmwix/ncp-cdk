@@ -60,7 +60,6 @@
       border-radius: 50%;
     }
 
-    /* Toggler styling */
     .navbar-toggler {
       border: 2px solid var(--primary);
       border-radius: 8px;
@@ -73,11 +72,6 @@
 
     .navbar-toggler:focus {
       box-shadow: 0 0 0 0.2rem rgba(231, 111, 81, 0.3);
-    }
-
-    /* CRITICAL: Make the collapsed menu drop BELOW the navbar */
-    .navbar-collapse {
-      /* On mobile, expand below as a full-width block */
     }
 
     @media (max-width: 991.98px) {
@@ -203,6 +197,33 @@
       border-radius: 10px;
       font-weight: 500;
     }
+
+    /* PWA Install Button */
+    #pwa-install-banner {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    #pwa-install-btn {
+      background: #e76f51;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #pwa-install-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
   </style>
 </head>
 
@@ -211,13 +232,11 @@
   <nav class="navbar navbar-expand-lg navbar-light fixed-top animate__animated animate__fadeInDown">
     <div class="container position-relative">
 
-      <!-- Brand -->
       <a class="navbar-brand" href="{{ url_for('main.home') }}">
         <img src="{{ url_for('static', filename='images/IMG-20260424-WA0010.jpg') }}" alt="Logo">
         NCP-CDK Kenya
       </a>
 
-      <!-- Toggler — right next to brand, drops menu BELOW -->
       <button class="navbar-toggler" type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarNav"
@@ -227,7 +246,6 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Nav links — collapse drops below on mobile -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-lg-center">
           {% if current_user.is_authenticated %}
@@ -292,7 +310,6 @@
           <p class="text-white-50 mb-0">Are you an organization, school, or professional who wants to support families of children with disabilities in Kenya? Let's work together.</p>
         </div>
       </div>
-
       <div class="row justify-content-center">
         <div class="col-lg-7">
           <div id="partner-alert" class="alert mb-4" role="alert"></div>
@@ -330,6 +347,11 @@
     </div>
   </footer>
 
+  <!-- PWA Install Button (appears bottom-right when installable) -->
+  <div id="pwa-install-banner">
+    <button id="pwa-install-btn">📲 Install App</button>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
@@ -340,14 +362,13 @@
     document.addEventListener("DOMContentLoaded", function () {
       document.body.classList.add("loaded");
 
-      // ===== PARTNER FORM SUBMISSION =====
+      // ===== PARTNER FORM =====
       const partnerForm = document.getElementById('partnerForm');
       const partnerAlert = document.getElementById('partner-alert');
       const submitBtn = document.getElementById('partnerSubmitBtn');
 
       partnerForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-
         const name = document.getElementById('partnerName').value.trim();
         const email = document.getElementById('partnerEmail').value.trim();
         const phone = document.getElementById('partnerPhone').value.trim();
@@ -366,14 +387,12 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, phone })
           });
-
           const result = await response.json();
-
           if (response.ok && result.success) {
             showAlert('success', '✅ Thank you! Your partnership request has been sent. We will get back to you soon.');
             partnerForm.reset();
           } else {
-            showAlert('danger', '❌ Something went wrong. Please try again or email us directly at info.ncpcdk@gmail.com');
+            showAlert('danger', '❌ Something went wrong. Please try again or email us at info.ncpcdk@gmail.com');
           }
         } catch (err) {
           showAlert('danger', '❌ Could not send the request. Please check your connection or email us at info.ncpcdk@gmail.com');
@@ -392,79 +411,35 @@
           setTimeout(() => { partnerAlert.style.display = 'none'; }, 8000);
         }
       }
+
+      // ===== PWA INSTALL BUTTON (declared once here) =====
+      let deferredPrompt = null;
+      const installBanner = document.getElementById('pwa-install-banner');
+      const installBtn = document.getElementById('pwa-install-btn');
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.style.display = 'block';
+      });
+
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            installBanner.style.display = 'none';
+          }
+          deferredPrompt = null;
+        }
+      });
+
+      window.addEventListener('appinstalled', () => {
+        installBanner.style.display = 'none';
+      });
     });
   </script>
 
-
-<script>
-  let deferredPrompt;
-  const installBanner = document.getElementById('pwa-install-banner');
-  const installBtn = document.getElementById('pwa-install-btn');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBanner.style.display = 'block';
-  });
-
-  installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        installBanner.style.display = 'none';
-      }
-      deferredPrompt = null;
-    }
-  });
-
-  window.addEventListener('appinstalled', () => {
-    installBanner.style.display = 'none';
-  });
-</script>
-<!-- PWA Install Button -->
-<div id="pwa-install-banner" style="display:none; position:fixed; bottom:20px; right:20px; z-index:9999;">
-  <button id="pwa-install-btn" style="
-    background: #e76f51;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    cursor: pointer;
-  ">
-    📲 Install App
-  </button>
-</div>
-
-<script>
-  let deferredPrompt;
-  const installBanner = document.getElementById('pwa-install-banner');
-  const installBtn = document.getElementById('pwa-install-btn');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBanner.style.display = 'block';
-  });
-
-  installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        installBanner.style.display = 'none';
-      }
-      deferredPrompt = null;
-    }
-  });
-
-  window.addEventListener('appinstalled', () => {
-    installBanner.style.display = 'none';
-  });
-</script>
   <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {

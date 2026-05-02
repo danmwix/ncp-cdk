@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
-from app.models import User, Child, DisabilityCategory, Notification
+from app.models import User, Child, DisabilityCategory, DisabilitySubcategory, Notification
 from app.forms import RegistrationForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 from app.email_utils import send_password_reset_email, send_notification_email
 
@@ -17,13 +17,15 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    from app.forms import DISABILITY_CATEGORIES
+    
     form = RegistrationForm()
 
-    # Populate disability choices dynamically for each child form
-    disabilities = DisabilityCategory.query.all()
-    choices = [(str(d.id), d.name) for d in disabilities]
+    # Populate disability category choices
+    category_choices = [('', 'Select Category')] + [(cat, cat) for cat in DISABILITY_CATEGORIES.keys()]
     for child_form in form.children:
-        child_form.form.disabilities.choices = choices
+        child_form.form.disability_category.choices = category_choices
+        child_form.form.disability_subcategory.choices = [('', 'Select Subcategory')]
 
     if request.method == 'POST':
         # Custom validation: Check that at least one child has complete data
@@ -31,10 +33,11 @@ def register():
         for child_form in form.children.entries:
             name = child_form.form.name.data
             age = child_form.form.age.data
-            disabilities = child_form.form.disabilities.data
+            category = child_form.form.disability_category.data
+            subcategory = child_form.form.disability_subcategory.data
             
             # Check if any field has data
-            has_data = bool(name or age or disabilities)
+            has_data = bool(name or age or category or subcategory)
             
             if has_data:
                 # If any field has data, all must be filled
@@ -42,8 +45,10 @@ def register():
                     child_form.form.name.errors = ("Child name is required if adding a child",)
                 elif not age:
                     child_form.form.age.errors = ("Age is required if adding a child",)
-                elif not disabilities:
-                    child_form.form.disabilities.errors = ("Select at least one disability if adding a child",)
+                elif not category:
+                    child_form.form.disability_category.errors = ("Select a disability category if adding a child",)
+                elif not subcategory:
+                    child_form.form.disability_subcategory.errors = ("Select a disability subcategory if adding a child",)
                 else:
                     valid_children += 1
         
@@ -67,16 +72,34 @@ def register():
 
             # Create children linked to parent
             for child_form in form.children.entries:
-                if child_form.form.name.data and child_form.form.age.data and child_form.form.disabilities.data:
+                if (child_form.form.name.data and child_form.form.age.data and 
+                    child_form.form.disability_category.data and child_form.form.disability_subcategory.data):
+                    
+                    # Find or create disability category
+                    category_name = child_form.form.disability_category.data
+                    category_code = DISABILITY_CATEGORIES[category_name]['code']
+                    category = DisabilityCategory.query.filter_by(name=category_name).first()
+                    if not category:
+                        category = DisabilityCategory(name=category_name, code=category_code)
+                        db.session.add(category)
+                        db.session.flush()
+                    
+                    # Find or create disability subcategory
+                    subcategory_name = child_form.form.disability_subcategory.data
+                    subcategory = DisabilitySubcategory.query.filter_by(
+                        name=subcategory_name, category_id=category.id
+                    ).first()
+                    if not subcategory:
+                        subcategory = DisabilitySubcategory(name=subcategory_name, category=category)
+                        db.session.add(subcategory)
+                        db.session.flush()
+                    
                     child = Child(
                         name=child_form.form.name.data,
                         age=child_form.form.age.data,
                         parent=user
                     )
-                    selected_ids = [int(did) for did in child_form.form.disabilities.data]
-                    child.disabilities = DisabilityCategory.query.filter(
-                        DisabilityCategory.id.in_(selected_ids)
-                    ).all()
+                    child.disabilities.append(subcategory)
                     db.session.add(child)
 
             db.session.commit()
@@ -106,7 +129,10 @@ def register():
             else:
                 flash('Please correct the errors in the form.', 'danger')
 
-    return render_template('register.html', form=form)
+    # Prepare disability data for JavaScript
+    disability_data = {cat: data['subcategories'] for cat, data in DISABILITY_CATEGORIES.items()}
+    
+    return render_template('register.html', form=form, disability_data=disability_data)
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])

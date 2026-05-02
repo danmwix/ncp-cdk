@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, send_file
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
-from app.models import User, Story, Notification, Resource, DisabilityCategory
+from app.models import User, Story, Notification, Resource, DisabilityCategory, Child, DisabilitySubcategory
 from app.forms import AdminLoginForm
 from app.email_utils import send_notification_email
 from functools import wraps
 from datetime import datetime
+import io
+import csv
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -335,3 +337,57 @@ def api_user_stats():
         'by_county': dict(users_by_county),
         'by_month': dict(users_by_month)
     })
+
+@admin_bp.route('/export_users')
+@login_required
+@admin_required
+def export_users():
+    """Export all users and their children data to CSV"""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow([
+        'User ID', 'Parent Name', 'Email', 'County', 'Registration Date', 'Is Admin',
+        'Child Name', 'Child Age', 'Disability Category', 'Disability Subcategory'
+    ])
+    
+    # Get all users with their children
+    users = User.query.all()
+    
+    for user in users:
+        if user.children:
+            for child in user.children:
+                subcategory = child.disabilities[0] if child.disabilities else None
+                writer.writerow([
+                    user.id,
+                    user.name,
+                    user.email,
+                    user.county,
+                    user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else '',
+                    'Yes' if user.is_admin else 'No',
+                    child.name,
+                    child.age,
+                    subcategory.category.name if subcategory else '',
+                    subcategory.name if subcategory else ''
+                ])
+        else:
+            # User with no children
+            writer.writerow([
+                user.id,
+                user.name,
+                user.email,
+                user.county,
+                user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else '',
+                'Yes' if user.is_admin else 'No',
+                '', '', '', ''  # Empty child fields
+            ])
+    
+    output.seek(0)
+    
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'users_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+    )

@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_from_directory
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_from_directory, jsonify
 from flask_login import login_required, current_user
-from app import db
-from app.models import DisabilityCategory, Child, SupportGroup, GroupMessage, Event, Story, User, Notification
+from app import db, mail
+from app.models import DisabilityCategory, DisabilitySubcategory, Child, SupportGroup, GroupMessage, Event, Story, User, Notification
 from app.forms import EditProfileForm, EditChildForm, ChildForm
+from flask_mail import Message
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timedelta
@@ -48,9 +49,6 @@ def group_chat(disability_id):
     if request.method == 'POST':
         content = request.form.get('message', '').strip()
         file = request.files.get('file')
-        file_name = None
-        file_path = None
-        file_type = None
         
         if content or file:
             message = GroupMessage(
@@ -66,16 +64,12 @@ def group_chat(disability_id):
                 ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
                 
                 if ext in ALLOWED_EXTENSIONS:
-                    # Create uploads folder if it doesn't exist
                     upload_folder = os.path.join(os.path.dirname(__file__), 'static', 'uploads', str(group.id))
                     os.makedirs(upload_folder, exist_ok=True)
-                    
-                    # Generate unique filename
                     timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
                     filename = timestamp + filename
                     file.save(os.path.join(upload_folder, filename))
-                    
-                    message.file_name = file.filename  # Store original filename
+                    message.file_name = file.filename
                     message.file_path = f'uploads/{group.id}/{filename}'
                     message.file_type = file.content_type
                     flash(f'File "{file.filename}" uploaded successfully!', 'success')
@@ -87,7 +81,6 @@ def group_chat(disability_id):
             flash('Message posted successfully!', 'success')
             return redirect(url_for('main.group_chat', disability_id=disability_id))
     
-    # Get all messages for this group (ordered by newest first)
     messages = GroupMessage.query.filter_by(group_id=group.id).order_by(GroupMessage.created_at.desc()).all()
     
     return render_template('group_chat.html', 
@@ -108,7 +101,7 @@ def edit_profile():
         return redirect(url_for('main.profile'))
     else:
         if request.method == 'POST':
-            print(form.errors)  # shows all validation errors in terminal
+            print(form.errors)
             flash('Please correct the errors in the form.', 'danger')
     return render_template('edit_profile.html', form=form)
 
@@ -116,55 +109,106 @@ def edit_profile():
 @main_bp.route('/edit_child/<int:child_id>', methods=['GET', 'POST'])
 @login_required
 def edit_child(child_id):
+    from app.forms import DISABILITY_CATEGORIES
+    
     child = Child.query.get_or_404(child_id)
     if child.parent != current_user:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('main.profile'))
 
     form = EditChildForm(obj=child)
-    form.disabilities.choices = [(d.id, d.name) for d in DisabilityCategory.query.all()]
+    
+    category_choices = [('', 'Select Category')] + [(cat, cat) for cat in DISABILITY_CATEGORIES.keys()]
+    form.disability_category.choices = category_choices
+    form.disability_subcategory.choices = [('', 'Select Subcategory')]
+    
+    if child.disabilities:
+        subcategory = child.disabilities[0]
+        form.disability_category.data = subcategory.category.name
+        form.disability_subcategory.data = subcategory.name
+        if subcategory.category.name in DISABILITY_CATEGORIES:
+            sub_choices = [('', 'Select Subcategory')] + [(sub, sub) for sub in DISABILITY_CATEGORIES[subcategory.category.name]['subcategories']]
+            form.disability_subcategory.choices = sub_choices
 
     if form.validate_on_submit():
+        category_name = form.disability_category.data
+        category_code = DISABILITY_CATEGORIES[category_name]['code']
+        category = DisabilityCategory.query.filter_by(name=category_name).first()
+        if not category:
+            category = DisabilityCategory(name=category_name, code=category_code)
+            db.session.add(category)
+            db.session.flush()
+        
+        subcategory_name = form.disability_subcategory.data
+        subcategory = DisabilitySubcategory.query.filter_by(
+            name=subcategory_name, category_id=category.id
+        ).first()
+        if not subcategory:
+            subcategory = DisabilitySubcategory(name=subcategory_name, category=category)
+            db.session.add(subcategory)
+            db.session.flush()
+        
         child.name = form.name.data
         child.age = form.age.data
-        child.disabilities = DisabilityCategory.query.filter(
-            DisabilityCategory.id.in_(form.disabilities.data)
-        ).all()
+        child.disabilities = [subcategory]
         db.session.commit()
         flash('Child details updated successfully!', 'success')
         return redirect(url_for('main.profile'))
     else:
         if request.method == 'POST':
-            print(form.errors)  # shows all validation errors in terminal
+            print(form.errors)
             flash('Please correct the errors in the form.', 'danger')
-    return render_template('edit_child.html', form=form, child=child)
+    
+    disability_data = {cat: data['subcategories'] for cat, data in DISABILITY_CATEGORIES.items()}
+    return render_template('edit_child.html', form=form, child=child, disability_data=disability_data)
 
 # Add new child
 @main_bp.route('/add_child', methods=['GET', 'POST'])
 @login_required
 def add_child():
+    from app.forms import DISABILITY_CATEGORIES
+    
     form = ChildForm()
-    form.disabilities.choices = [(d.id, d.name) for d in DisabilityCategory.query.all()]
+    
+    category_choices = [('', 'Select Category')] + [(cat, cat) for cat in DISABILITY_CATEGORIES.keys()]
+    form.disability_category.choices = category_choices
+    form.disability_subcategory.choices = [('', 'Select Subcategory')]
 
     if form.validate_on_submit():
+        category_name = form.disability_category.data
+        category_code = DISABILITY_CATEGORIES[category_name]['code']
+        category = DisabilityCategory.query.filter_by(name=category_name).first()
+        if not category:
+            category = DisabilityCategory(name=category_name, code=category_code)
+            db.session.add(category)
+            db.session.flush()
+        
+        subcategory_name = form.disability_subcategory.data
+        subcategory = DisabilitySubcategory.query.filter_by(
+            name=subcategory_name, category_id=category.id
+        ).first()
+        if not subcategory:
+            subcategory = DisabilitySubcategory(name=subcategory_name, category=category)
+            db.session.add(subcategory)
+            db.session.flush()
+        
         child = Child(
             name=form.name.data,
             age=form.age.data,
             parent=current_user
         )
-        selected_ids = [int(did) for did in form.disabilities.data]
-        child.disabilities = DisabilityCategory.query.filter(
-            DisabilityCategory.id.in_(selected_ids)
-        ).all()
+        child.disabilities.append(subcategory)
         db.session.add(child)
         db.session.commit()
         flash('New child added successfully!', 'success')
         return redirect(url_for('main.profile'))
     else:
         if request.method == 'POST':
-            print(form.errors)  # shows all validation errors in terminal
+            print(form.errors)
             flash('Please correct the errors in the form.', 'danger')
-    return render_template('add_child.html', form=form)
+    
+    disability_data = {cat: data['subcategories'] for cat, data in DISABILITY_CATEGORIES.items()}
+    return render_template('add_child.html', form=form, disability_data=disability_data)
 
 # Resource Library
 @main_bp.route('/resources')
@@ -238,7 +282,7 @@ def submit_story():
                 content=content,
                 is_anonymous=is_anonymous,
                 author=current_user,
-                is_approved=False  # Requires admin approval
+                is_approved=False
             )
             db.session.add(story)
             db.session.commit()
@@ -276,7 +320,6 @@ def approve_story(story_id):
     if not current_user.is_admin:
         flash('Admin access required.', 'danger')
         return redirect(url_for('main.home'))
-    
     story = Story.query.get_or_404(story_id)
     story.is_approved = True
     db.session.commit()
@@ -289,7 +332,6 @@ def reject_story(story_id):
     if not current_user.is_admin:
         flash('Admin access required.', 'danger')
         return redirect(url_for('main.home'))
-    
     story = Story.query.get_or_404(story_id)
     db.session.delete(story)
     db.session.commit()
@@ -302,7 +344,6 @@ def toggle_admin(user_id):
     if not current_user.is_admin:
         flash('Admin access required.', 'danger')
         return redirect(url_for('main.home'))
-    
     user = User.query.get_or_404(user_id)
     user.is_admin = not user.is_admin
     db.session.commit()
@@ -316,7 +357,6 @@ def delete_event(event_id):
     if not current_user.is_admin:
         flash('Admin access required.', 'danger')
         return redirect(url_for('main.home'))
-    
     event = Event.query.get_or_404(event_id)
     db.session.delete(event)
     db.session.commit()
@@ -328,10 +368,9 @@ def delete_event(event_id):
 @login_required
 def notifications():
     page = request.args.get('page', 1, type=int)
-    # CORRECT - query Notification directly
     notifications = Notification.query.filter_by(user_id=current_user.id)\
-    .order_by(Notification.created_at.desc())\
-    .paginate(page=page, per_page=10)
+        .order_by(Notification.created_at.desc())\
+        .paginate(page=page, per_page=10)
     return render_template('notifications.html', notifications=notifications)
 
 @main_bp.route('/notifications/<int:notification_id>/read', methods=['POST'])
@@ -341,7 +380,6 @@ def mark_notification_read(notification_id):
     if notification.user_id != current_user.id:
         flash('Unauthorized.', 'danger')
         return redirect(url_for('main.home'))
-    
     notification.is_read = True
     db.session.commit()
     return redirect(request.referrer or url_for('main.notifications'))
@@ -353,7 +391,6 @@ def delete_notification(notification_id):
     if notification.user_id != current_user.id:
         flash('Unauthorized.', 'danger')
         return redirect(url_for('main.home'))
-    
     db.session.delete(notification)
     db.session.commit()
     flash('Notification deleted.', 'info')
@@ -364,3 +401,41 @@ def delete_notification(notification_id):
 def unread_notifications_count():
     count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
     return str(count)
+
+# ===== PARTNER WITH US =====
+@main_bp.route('/partner-request', methods=['POST'])
+def partner_request():
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        phone = data.get('phone', '').strip()
+
+        if not name or not email or not phone:
+            return jsonify({'success': False, 'error': 'All fields are required.'}), 400
+
+        msg = Message(
+            subject=f'🤝 New Partnership Request from {name}',
+            sender=('NCP-CDK Kenya', 'info.ncpcdk@gmail.com'),
+            recipients=['info.ncpcdk@gmail.com'],
+            body=f"""
+New Partnership Request Received
+=================================
+
+Name:    {name}
+Email:   {email}
+Phone:   {phone}
+
+Please follow up with this person at your earliest convenience.
+
+---
+This message was sent automatically from the NCP-CDK Kenya website.
+            """.strip()
+        )
+
+        mail.send(msg)
+        return jsonify({'success': True}), 200
+
+    except Exception as e:
+        print(f"[Partner Request Error]: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

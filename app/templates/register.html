@@ -11,10 +11,10 @@
         <p class="text-center text-muted mb-4 animate__animated animate__fadeIn">
           Create your profile to connect with other Kenyan parents and caregivers
         </p>
-        
+
         <form method="POST" novalidate class="animate__animated animate__fadeInUp">
           {{ form.hidden_tag() }}
-          
+
           <!-- Parent Info -->
           <div class="row g-3">
             <div class="col-md-6" data-aos="fade-right">
@@ -46,10 +46,11 @@
           <!-- Children Info -->
           <div class="mt-4" data-aos="fade-up" data-aos-delay="200">
             <h5 class="text-secondary">Children Information</h5>
-            <small class="text-muted d-block mb-3">Enter details for each child</small>
-            
+            <small class="text-muted d-block mb-3">Enter details for each child with a disability</small>
+
             {% for child_form in form.children %}
             <div class="border rounded p-3 mb-3 bg-light animate__animated animate__fadeInUp">
+              <h6 class="text-primary mb-3">Child {{ loop.index }}</h6>
               <div class="mb-3">
                 {{ child_form.form.name.label(class="form-label fw-bold") }}
                 {{ child_form.form.name(class="form-control") }}
@@ -59,24 +60,23 @@
               </div>
               <div class="mb-3">
                 {{ child_form.form.age.label(class="form-label fw-bold") }}
-                {{ child_form.form.age(class="form-control") }}
+                {{ child_form.form.age(class="form-control", type="number", min="0", max="25") }}
                 {% for error in child_form.form.age.errors %}
                   <div class="text-danger small">{{ error }}</div>
                 {% endfor %}
               </div>
               <div class="mb-3">
-                {{ child_form.form.disabilities.label(class="form-label fw-bold") }}
-                <div class="row g-2">
-                  {% for subfield in child_form.form.disabilities %}
-                  <div class="col-md-6">
-                    <div class="form-check form-switch p-2 border rounded bg-white">
-                      {{ subfield(class="form-check-input") }}
-                      {{ subfield.label(class="form-check-label fw-medium") }}
-                    </div>
-                  </div>
-                  {% endfor %}
-                </div>
-                {% for error in child_form.form.disabilities.errors %}
+                {{ child_form.form.disability_category.label(class="form-label fw-bold") }}
+                {{ child_form.form.disability_category(class="form-select disability-category-select", data_index=loop.index0) }}
+                {% for error in child_form.form.disability_category.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                {{ child_form.form.disability_subcategory.label(class="form-label fw-bold") }}
+                {{ child_form.form.disability_subcategory(class="form-select disability-subcategory-select", data_index=loop.index0) }}
+                <small class="text-muted">Select a category first to see the natures of disability</small>
+                {% for error in child_form.form.disability_subcategory.errors %}
                   <div class="text-danger small">{{ error }}</div>
                 {% endfor %}
               </div>
@@ -108,7 +108,7 @@
         </form>
 
         <div class="text-center mt-4 animate__animated animate__fadeInUp">
-          <p>Already have an account? 
+          <p>Already have an account?
             <a href="{{ url_for('auth.login') }}" class="text-primary">Login here</a>
           </p>
         </div>
@@ -116,4 +116,47 @@
     </div>
   </div>
 </div>
+
+<script>
+  const disabilityData = {{ disability_data|tojson }};
+
+  function updateSubcategories(categorySelect, subcategorySelect) {
+    const selectedCategory = categorySelect.value;
+
+    // Clear all options except the placeholder
+    while (subcategorySelect.options.length > 1) {
+      subcategorySelect.remove(1);
+    }
+
+    if (selectedCategory && disabilityData[selectedCategory]) {
+      disabilityData[selectedCategory].forEach(function(nature) {
+        const option = document.createElement('option');
+        option.value = nature;
+        option.textContent = nature;
+        subcategorySelect.appendChild(option);
+      });
+      subcategorySelect.disabled = false;
+    } else {
+      subcategorySelect.disabled = true;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const categorySelects = document.querySelectorAll('.disability-category-select');
+    const subcategorySelects = document.querySelectorAll('.disability-subcategory-select');
+
+    categorySelects.forEach(function(categorySelect, idx) {
+      const subcategorySelect = subcategorySelects[idx];
+
+      // Disable subcategory until category is chosen
+      if (!categorySelect.value) {
+        subcategorySelect.disabled = true;
+      }
+
+      categorySelect.addEventListener('change', function () {
+        updateSubcategories(categorySelect, subcategorySelect);
+      });
+    });
+  });
+</script>
 {% endblock %}

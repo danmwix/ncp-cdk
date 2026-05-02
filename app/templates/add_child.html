@@ -21,19 +21,16 @@
             {{ form.age(class="form-control") }}
           </div>
           
-          <!-- Disabilities -->
+          <!-- Disability Category -->
           <div class="mb-3" data-aos="fade-up" data-aos-delay="200">
-            {{ form.disabilities.label(class="form-label fw-bold") }}
-            <div class="row g-2">
-              {% for subfield in form.disabilities %}
-              <div class="col-md-6">
-                <div class="form-check form-switch p-2 border rounded bg-light">
-                  {{ subfield(class="form-check-input") }}
-                  {{ subfield.label(class="form-check-label fw-medium") }}
-                </div>
-              </div>
-              {% endfor %}
-            </div>
+            {{ form.disability_category.label(class="form-label fw-bold") }}
+            {{ form.disability_category(class="form-select") }}
+          </div>
+          
+          <!-- Disability Subcategory -->
+          <div class="mb-3" data-aos="fade-up" data-aos-delay="300">
+            {{ form.disability_subcategory.label(class="form-label fw-bold") }}
+            {{ form.disability_subcategory(class="form-select") }}
           </div>
           
           <!-- Save Button -->
@@ -45,4 +42,43 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Disability categories and subcategories data
+  const disabilityData = {{ disability_data|tojson }};
+
+  // Function to update subcategory options
+  function updateSubcategories(categorySelect, subcategorySelect) {
+    const selectedCategory = categorySelect.value;
+    const subcategoryOptions = subcategorySelect.querySelectorAll('option');
+    
+    // Clear existing options except the first one
+    subcategoryOptions.forEach(option => {
+      if (option.value !== '') {
+        option.remove();
+      }
+    });
+    
+    if (selectedCategory && disabilityData[selectedCategory]) {
+      disabilityData[selectedCategory].forEach(subcategory => {
+        const option = document.createElement('option');
+        option.value = subcategory;
+        option.textContent = subcategory;
+        subcategorySelect.appendChild(option);
+      });
+    }
+  }
+
+  // Initialize event listeners
+  document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.querySelector('#disability_category');
+    const subcategorySelect = document.querySelector('#disability_subcategory');
+    
+    if (categorySelect && subcategorySelect) {
+      categorySelect.addEventListener('change', function() {
+        updateSubcategories(categorySelect, subcategorySelect);
+      });
+    }
+  });
+</script>
 {% endblock %}

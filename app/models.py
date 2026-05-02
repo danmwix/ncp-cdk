@@ -8,7 +8,7 @@ import secrets
 child_disabilities = db.Table(
     'child_disabilities',
     db.Column('child_id', db.Integer, db.ForeignKey('child.id'), primary_key=True),
-    db.Column('disability_id', db.Integer, db.ForeignKey('disability_category.id'), primary_key=True)
+    db.Column('disability_subcategory_id', db.Integer, db.ForeignKey('disability_subcategory.id'), primary_key=True)
 )
 
 # Many-to-Many relationship for group members
@@ -21,15 +21,28 @@ group_members = db.Table(
 class DisabilityCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
-    code = db.Column(db.String(10), unique=True, nullable=False)  # e.g., ASD, VI
+    code = db.Column(db.String(10), unique=True, nullable=False)  # e.g., MOH/276A
 
-    # Back-reference to children
-    children = db.relationship('Child', secondary=child_disabilities, back_populates='disabilities')
+    # Relationship to subcategories
+    subcategories = db.relationship('DisabilitySubcategory', back_populates='category', cascade="all, delete-orphan")
     # Support groups for this disability
     support_groups = db.relationship('SupportGroup', back_populates='disability')
 
     def __repr__(self):
-        return f'<Disability {self.name}>'
+        return f'<DisabilityCategory {self.name}>'
+
+class DisabilitySubcategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('disability_category.id'), nullable=False)
+
+    # Relationships
+    category = db.relationship('DisabilityCategory', back_populates='subcategories')
+    # Back-reference to children
+    children = db.relationship('Child', secondary=child_disabilities, back_populates='disabilities')
+
+    def __repr__(self):
+        return f'<DisabilitySubcategory {self.name}>'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -86,7 +99,7 @@ class Child(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     parent = db.relationship('User', back_populates='children')
 
-    disabilities = db.relationship('DisabilityCategory', secondary=child_disabilities, back_populates='children')
+    disabilities = db.relationship('DisabilitySubcategory', secondary=child_disabilities, back_populates='children')
 
     def __repr__(self):
         return f'<Child {self.name}, Age {self.age}>'

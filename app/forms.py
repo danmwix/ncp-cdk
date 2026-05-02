@@ -7,11 +7,6 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
 from wtforms.widgets import ListWidget, CheckboxInput
 
-# Custom Checkbox Field
-class MultiCheckboxField(SelectMultipleField):
-    widget = ListWidget(prefix_label=False)
-    option_widget = CheckboxInput()
-
 # All 47 Kenyan counties
 KENYA_COUNTIES = [
     ('Baringo', 'Baringo'),
@@ -63,13 +58,89 @@ KENYA_COUNTIES = [
     ('West Pokot', 'West Pokot'),
 ]
 
+# Disability Categories and Subcategories
+DISABILITY_CATEGORIES = {
+    'Physical Disabilities': {
+        'code': 'MOH/276A',
+        'subcategories': [
+            'AMELIA', 'ACQUIRED BRAIN INJURIES', 'CEREBRAL PALSY', 'CONGENITAL HIP DISLOCATION',
+            'ERB\'S PALSY', 'HEMIPLEGIA', 'HYDROCEPHALUS', 'KLUMPKE\'S PALSY', 'MONOPLEGIA',
+            'AMPUTATION', 'ARTHRITIS', 'ATHROGRYPOSIS', 'ANKYLOSING SPONDYLOSIS', 'CONGENITAL DEFORMITIES',
+            'SHORT STATURE', 'FREEMAN SHELDON SYNDROME', 'KYPHOSCOLIOSIS', 'OSTEOGENESIS IMPERFECTA',
+            'POLIO', 'PARAPLEGIA', 'ALBINISM', 'QUADRIPLEGIA', 'SPINA BIFIDA', 'CONTRACTURES',
+            'PERMANENT COLOSTOMY', 'GIGANTISM', 'SCOLIOSIS, KYPHOSIS'
+        ]
+    },
+    'Visual Impairment': {
+        'code': 'MOH/276B',
+        'subcategories': ['SEVERE VISUAL IMPAIRMENT', 'BLIND']
+    },
+    'Hearing Impairment': {
+        'code': 'MOH/276C',
+        'subcategories': [
+            'GRADE O - NORMAL HEARING', 'GRADE 1 - SLIGHT (MILD)', 'GRADE 3 - SEVERE',
+            'GRADE 4 - PROFOUND', 'DEAF/ABLE TO TALK NORMALLY', 'DEAF/USING SIGN LANGUAGE'
+        ]
+    },
+    'Speech, Language, Communication and Swallowing Disabilities': {
+        'code': 'MOH/276D',
+        'subcategories': [
+            'DYSFLUENCY - STAMMERING', 'CLUTTERING', 'ARTICULATION', 'LANGUAGE DISORDERS',
+            'COMMUNICATION IMPAIRMENT', 'DYSPHAGIA', 'DYSARTHRIA', 'APRAXIA OR VERBAL DYSPRAXIA',
+            'DEVELOPMENTAL LANGUAGE DISORDER', 'CONGENITAL LANGUAGE DISORDER', 'APHASIA',
+            'STAMMERING', 'DYSPHAGIA STAGE 1 - PRE-ORAL', 'DYSPHAGIA STAGE 2 - ORAL',
+            'DYSPHAGIA STAGE 3 - PHARYNGEAL', 'DYSPHAGIA STAGE 4 - OESOPHAGEAL'
+        ]
+    },
+    'Mental/Intellectual/Autism Spectrum Disorders': {
+        'code': 'MOH/276E',
+        'subcategories': [
+            'NEURO-DEVELOPMENTAL DISORDERS', 'SCHIZOPHRENIA SPECTRUM AND OTHER PSYCHOTIC DISORDERS',
+            'BIPOLAR AND RELATED DISORDERS', 'DEPRESSIVE DISORDERS', 'ANXIETY DISORDER',
+            'INTELLECTUAL DISABILITY', 'ATTENTION DEFICIT HYPERACTIVITY DISORDER',
+            'SPECIFIC LEARNING DISORDER', 'DOWN SYNDROME', 'DYSLEXIA',
+            'TRAUMA AND STRESS RELATED DISORDERS', 'SOMATIC SYMPTOMS AND RELATED DISORDERS',
+            'AUTISM SPECTRUM DISORDER (ASD)'
+        ]
+    },
+    'Maxillofacial Disabilities': {
+        'code': 'MOH/276F',
+        'subcategories': [
+            'TOTAL ANODONTIA', 'LOSS OF JAWS', 'IMPAIRMENTS AFFECTING NERVES', 'LOSS/MISSING SOFT TISSUE',
+            'FACIAL PAINS AND SYNDROME', 'XEROSTOMIA', 'TRISMUS', 'TOTAL JAW RESORPTION',
+            'MICROGNATHIA (COMPLETE IMPAIRMENT)', 'MICROGNATHIA (UNILATERAL OR BILATERAL IMPAIRMENT)',
+            'TEMPORAL-MANDIBULAR JOINT ANKYLOSIS', 'AGEUSIA', 'BELL\'S PALSY AND OTHER MOTOR NERVE DEFECTS',
+            'SALIVARY GLANDS DISORDERS', 'CLEFT LIP AND PALATE'
+        ]
+    },
+    'Progressive Chronic Disorders': {
+        'code': 'MOH/276G',
+        'subcategories': [
+            'MULTIPLE SCLEROSIS', 'CHRONIC PROGRESSIVE DISORDERS', 'SEVERE OSTEOARTHRITIS',
+            'VITILIGO', 'COPD', 'CHRONIC ISCHEMIC HEART DISEASE', 'CARDIOMYOPATHY', 'CYSTIC FIBROSIS',
+            'RHEUMATIC HEART DISEASE', 'SYMPTOMATIC CONGENITAL HEART DISEASE', 'FIBROMYALGIA',
+            'MUSCULAR DYSTROPHY', 'SEVERE SYSTEMIC LUPUS ERYTHEMATOSUS', 'RHEUMATOID ARTHRITIS',
+            'REITER\'S SYNDROME', 'POLYMYOSITIS', 'DEMENTIA', 'ALS (AMYOTROPHIC LATERAL SCLEROSIS)',
+            'PARKINSON\'S', 'HEREDITARY NEUROPATHY', 'EPILEPSY', 'INCLUSION TYPE MYOSITIS',
+            'HUNTINGTON\'S DISEASE MOTOR', 'FRIEDREICH\'S ATAXIA', 'SPINOCEREBELLAR DEGENERATION',
+            'COMA AND PERSISTENT VEGETATIVE STATE', 'CHRONIC FATIGUE SYNDROME', 'STROKE',
+            'BRAIN TUMORS', 'SPINAL CORD INJURY', 'ARACHNOIDITIS', 'HAEMATOLOGICAL E.G LEUKEMIA',
+            'SOLID ORGANS', 'BONE/SOFT TISSUE TUMORS RESULTING IN AMPUTATION', 'HEAD AND NECK TUMORS',
+            'INFLAMMATORY BOWEL DISEASES', 'LIVER CIRRHOSIS', 'CHRONIC PANCREATIC', 'PSORIASIS',
+            'HYDRADENITIS SUPPURATIVA', 'SCLERODERMA', 'LYMPHEDEMA',
+            'ASSOCIATION OF LYMPHEDEMA AND MASTECTOMY', 'MASTECTOMY', 'BOWEL INCONTINENCE'
+        ]
+    }
+}
+
 class ChildForm(FlaskForm):
     class Meta:
         csrf = False
     
     name = StringField("Child's Name", validators=[Length(max=100)])
     age = IntegerField("Child's Age", validators=[NumberRange(min=0, max=25, message="Enter a valid age")])
-    disabilities = MultiCheckboxField("Disabilities", choices=[])
+    disability_category = SelectField("Disability Category", choices=[], validators=[DataRequired(message="Select a disability category")])
+    disability_subcategory = SelectField("Disability Subcategory", choices=[], validators=[DataRequired(message="Select a disability subcategory")])
 
 class RegistrationForm(FlaskForm):
     name = StringField('Full Name', validators=[DataRequired(message="Full name is required"), Length(min=2, max=100)])
@@ -112,5 +183,6 @@ class EditProfileForm(FlaskForm):
 class EditChildForm(FlaskForm):
     name = StringField('Child Name', validators=[DataRequired(message="Child name is required"), Length(max=100)])
     age = IntegerField('Child Age', validators=[DataRequired(message="Age is required"), NumberRange(min=0, max=25, message="Enter a valid age")])
-    disabilities = MultiCheckboxField('Disabilities', choices=[], validators=[DataRequired(message="Select at least one disability")])
+    disability_category = SelectField("Disability Category", choices=[], validators=[DataRequired(message="Select a disability category")])
+    disability_subcategory = SelectField("Disability Subcategory", choices=[], validators=[DataRequired(message="Select a disability subcategory")])
     submit = SubmitField('Save Child Details')

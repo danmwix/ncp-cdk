@@ -60,6 +60,33 @@
       border-radius: 50%;
     }
 
+    /* Move toggler right next to brand, always visible on mobile */
+    .navbar-toggler {
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin-left: 10px;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23e76f51' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    .navbar-toggler:focus {
+      box-shadow: 0 0 0 0.2rem rgba(231, 111, 81, 0.3);
+    }
+
+    /* Make navbar brand + toggler sit together on left on mobile */
+    .navbar > .container {
+      flex-wrap: nowrap;
+    }
+
+    .navbar-brand-group {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
     .nav-link {
       font-weight: 500;
       color: var(--accent) !important;
@@ -163,14 +190,20 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light fixed-top animate__animated animate__fadeInDown">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('main.home') }}">
-        <img src="{{ url_for('static', filename='images/IMG-20260424-WA0010.jpg') }}" alt="Logo">
-        NCP-CDK Kenya
-      </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <!-- Brand + Toggler grouped together on the left -->
+      <div class="navbar-brand-group">
+        <a class="navbar-brand" href="{{ url_for('main.home') }}">
+          <img src="{{ url_for('static', filename='images/IMG-20260424-WA0010.jpg') }}" alt="Logo">
+          NCP-CDK Kenya
+        </a>
+
+        <!-- Toggler sits RIGHT next to the brand name -->
+        <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
 
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
@@ -239,7 +272,6 @@
       <div class="row justify-content-center">
         <div class="col-lg-7">
 
-          <!-- Alert message (shown after submit) -->
           <div id="partner-alert" class="alert mb-4" role="alert"></div>
 
           <form class="partner-form" id="partnerForm">
@@ -311,7 +343,6 @@
           return;
         }
 
-        // Disable button while sending
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
 
@@ -344,7 +375,6 @@
         partnerAlert.style.display = 'block';
         partnerAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Auto-hide success after 8 seconds
         if (type === 'success') {
           setTimeout(() => { partnerAlert.style.display = 'none'; }, 8000);
         }
